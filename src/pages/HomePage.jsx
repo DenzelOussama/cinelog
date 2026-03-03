@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getTrending, getTopRated, getDiscover, IMG_BASE } from '../api/tmdb';
 import MovieCard from '../components/MovieCard';
+import Footer from '../components/Footer';
 
 /* ─── Genre map (TMDB IDs → labels) ─── */
 const GENRE_MAP = {
@@ -254,6 +255,9 @@ export default function HomePage() {
                     />
                 ))}
             </div>
+
+            {/* Footer */}
+            <Footer />
         </div>
     );
 }
