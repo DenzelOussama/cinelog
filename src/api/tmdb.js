@@ -28,5 +28,9 @@ export function searchMovies(query, page = 1) {
 }
 
 export function getMovieDetails(id) {
-    return request(`/movie/${id}`, { append_to_response: 'credits' });
+    return request(`/movie/${id}`, { append_to_response: 'credits,videos' });
+}
+
+export function getSimilarMovies(id) {
+    return request(`/movie/${id}/similar`);
 }

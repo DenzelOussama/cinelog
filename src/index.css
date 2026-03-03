@@ -387,6 +387,60 @@ textarea {
 }
 
 /* ═══════════════════════════════════════════
+   TOAST NOTIFICATIONS
+   ═══════════════════════════════════════════ */
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toastOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   TRAILER MODAL
+   ═══════════════════════════════════════════ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ═══════════════════════════════════════════
    RESPONSIVE
    ═══════════════════════════════════════════ */
 
@@ -481,6 +535,15 @@ textarea {
     font-size: 14px;
   }
 
+  /* Community Activity */
+  .community-section {
+    padding: 32px 20px 40px !important;
+  }
+
+  .community-grid {
+    grid-template-columns: 1fr !important;
+  }
+
   /* Navbar — hamburger toggler on mobile */
   .cinelog-nav {
     padding: 0 20px !important;
@@ -530,14 +593,15 @@ textarea {
   }
 
   .movie-actions {
-    justify-content: center;
-    flex-wrap: wrap !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    width: 100%;
   }
 
   .movie-action-btn {
-    flex: 1 !important;
-    min-width: 0 !important;
+    width: 100% !important;
     text-align: center;
+    justify-content: center;
   }
 
   .movie-section {
@@ -587,10 +651,8 @@ textarea {
   }
 
   .profile-tabs {
-    overflow-x: auto;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
+    display: flex !important;
+    width: 100%;
   }
 
   .profile-tabs::-webkit-scrollbar {
@@ -598,8 +660,10 @@ textarea {
   }
 
   .profile-tab {
-    padding: 12px 20px !important;
+    flex: 1 !important;
+    padding: 12px 4px !important;
     font-size: 10px !important;
+    text-align: center;
     white-space: nowrap;
   }
 
@@ -679,6 +743,33 @@ textarea {
 
   .cinelog-footer-links {
     align-items: center !important;
+  }
+
+  /* Login card — compact on mobile */
+  .login-card {
+    padding: 32px 24px !important;
+    border-radius: 12px !important;
+    max-width: 85vw !important;
+  }
+
+  .login-card h1 {
+    font-size: 40px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .login-card p {
+    font-size: 13px !important;
+    margin-bottom: 24px !important;
+  }
+
+  .login-card input {
+    padding: 10px 14px !important;
+    font-size: 13px !important;
+  }
+
+  .login-card button {
+    padding: 11px 0 !important;
+    font-size: 11px !important;
   }
 
   /* Login poster grid — fewer columns on mobile */

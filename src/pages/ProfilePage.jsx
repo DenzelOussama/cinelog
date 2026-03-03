@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getReviews, deleteReview, updateUser } from '../api/mockapi';
 import { IMG_BASE } from '../api/tmdb';
 import StarRating from '../components/StarRating';
+import { useToast } from '../context/ToastContext';
 
 
 /* ═══════════════════════════════════════════
@@ -323,6 +324,7 @@ const placeholderStyle = {
 export default function ProfilePage() {
     const { user, refreshUser } = useAuth();
     const navigate = useNavigate();
+    const toast = useToast();
     const [tab, setTab] = useState('watched');
     const [reviews, setReviews] = useState([]);
     const [loadingReviews, setLoadingReviews] = useState(false);
@@ -338,21 +340,88 @@ export default function ProfilePage() {
 
     async function handleRemoveFromList(listName, movieId) {
         if (!user) return;
-        const updated = (user[listName] || []).filter(
-            (m) => String(m.movieId) !== String(movieId)
-        );
-        await updateUser(user.id, { [listName]: updated });
-        await refreshUser();
+        try {
+            const updated = (user[listName] || []).filter(
+                (m) => String(m.movieId) !== String(movieId)
+            );
+            await updateUser(user.id, { [listName]: updated });
+            await refreshUser();
+            const label = listName === 'watched' ? 'Watched' : 'Watchlist';
+            toast(`Removed from ${label}`, 'success');
+        } catch (err) {
+            console.error(err);
+            toast('Failed to remove', 'error');
+        }
     }
 
     async function handleDeleteReview(reviewId) {
-        await deleteReview(reviewId);
-        setReviews((prev) => prev.filter((r) => r.id !== reviewId));
+        try {
+            await deleteReview(reviewId);
+            setReviews((prev) => prev.filter((r) => r.id !== reviewId));
+            toast('Review deleted', 'success');
+        } catch (err) {
+            console.error(err);
+            toast('Failed to delete review', 'error');
+        }
     }
 
     const watched = user?.watched || [];
     const watchlist = user?.watchlist || [];
     const initial = (user?.username || '?')[0].toUpperCase();
+
+    /* ── Sort state ── */
+    const [movieSort, setMovieSort] = useState('recent');
+    const [reviewSort, setReviewSort] = useState('newest');
+
+    const MOVIE_SORT_OPTIONS = [
+        { value: 'recent', label: 'Recently Added' },
+        { value: 'title-az', label: 'Title A → Z' },
+        { value: 'title-za', label: 'Title Z → A' },
+    ];
+
+    const REVIEW_SORT_OPTIONS = [
+        { value: 'newest', label: 'Newest First' },
+        { value: 'oldest', label: 'Oldest First' },
+        { value: 'rating-high', label: 'Highest Rating' },
+        { value: 'rating-low', label: 'Lowest Rating' },
+    ];
+
+    function sortMovies(list) {
+        const sorted = [...list];
+        switch (movieSort) {
+            case 'title-az':
+                sorted.sort((a, b) => (a.movieTitle || '').localeCompare(b.movieTitle || ''));
+                break;
+            case 'title-za':
+                sorted.sort((a, b) => (b.movieTitle || '').localeCompare(a.movieTitle || ''));
+                break;
+            case 'recent':
+            default:
+                sorted.sort((a, b) => new Date(b.addedAt || 0) - new Date(a.addedAt || 0));
+                break;
+        }
+        return sorted;
+    }
+
+    const sortedReviews = useMemo(() => {
+        const sorted = [...reviews];
+        switch (reviewSort) {
+            case 'oldest':
+                sorted.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+                break;
+            case 'rating-high':
+                sorted.sort((a, b) => b.rating - a.rating);
+                break;
+            case 'rating-low':
+                sorted.sort((a, b) => a.rating - b.rating);
+                break;
+            case 'newest':
+            default:
+                sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                break;
+        }
+        return sorted;
+    }, [reviews, reviewSort]);
 
     function renderMovieGrid(list, listName) {
         if (list.length === 0) {
@@ -453,7 +522,7 @@ export default function ProfilePage() {
                 </div>
             );
         }
-        return reviews.map((r) => (
+        return sortedReviews.map((r) => (
             <div
                 key={r.id}
                 className="profile-review-card"
@@ -576,8 +645,62 @@ export default function ProfilePage() {
                     ))}
                 </div>
 
-                {tab === 'watched' && renderMovieGrid(watched, 'watched')}
-                {tab === 'watchlist' && renderMovieGrid(watchlist, 'watchlist')}
+                {/* Sort bar */}
+                {((tab === 'watched' && watched.length > 1) ||
+                    (tab === 'watchlist' && watchlist.length > 1) ||
+                    (tab === 'reviews' && reviews.length > 1)) && (
+                        <div className="profile-sort-bar" style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'flex-end',
+                            gap: 10,
+                            marginBottom: 24,
+                        }}>
+                            <span style={{
+                                fontFamily: "'Inter', sans-serif",
+                                fontSize: 11,
+                                fontWeight: 600,
+                                textTransform: 'uppercase',
+                                letterSpacing: 1.5,
+                                color: '#555',
+                            }}>
+                                Sort by
+                            </span>
+                            <select
+                                className="profile-sort-select"
+                                value={tab === 'reviews' ? reviewSort : movieSort}
+                                onChange={(e) => {
+                                    if (tab === 'reviews') setReviewSort(e.target.value);
+                                    else setMovieSort(e.target.value);
+                                }}
+                                style={{
+                                    fontFamily: "'Inter', sans-serif",
+                                    fontSize: 12,
+                                    fontWeight: 500,
+                                    color: '#FFB800',
+                                    background: '#141414',
+                                    border: '1px solid #2a2a2a',
+                                    borderRadius: 8,
+                                    padding: '8px 32px 8px 14px',
+                                    outline: 'none',
+                                    cursor: 'pointer',
+                                    appearance: 'none',
+                                    WebkitAppearance: 'none',
+                                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23FFB800'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E")`,
+                                    backgroundRepeat: 'no-repeat',
+                                    backgroundPosition: 'right 8px center',
+                                    backgroundSize: '18px',
+                                }}
+                            >
+                                {(tab === 'reviews' ? REVIEW_SORT_OPTIONS : MOVIE_SORT_OPTIONS).map((opt) => (
+                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
+
+                {tab === 'watched' && renderMovieGrid(sortMovies(watched), 'watched')}
+                {tab === 'watchlist' && renderMovieGrid(sortMovies(watchlist), 'watchlist')}
                 {tab === 'reviews' && renderReviews()}
             </div>
 

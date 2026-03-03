@@ -1,7 +1,9 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getTrending, getTopRated, getDiscover, IMG_BASE } from '../api/tmdb';
+import { getReviews } from '../api/mockapi';
 import MovieCard from '../components/MovieCard';
+import StarRating from '../components/StarRating';
 import Footer from '../components/Footer';
 
 /* ─── Genre map (TMDB IDs → labels) ─── */
@@ -228,6 +230,199 @@ function CategoryRow({ title, fetcher }) {
 }
 
 /* ════════════════════════════════════════════
+   COMMUNITY ACTIVITY
+   ════════════════════════════════════════════ */
+
+function timeAgo(dateStr) {
+    if (!dateStr) return '';
+    const seconds = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
+    const intervals = [
+        { label: 'year', seconds: 31536000 },
+        { label: 'month', seconds: 2592000 },
+        { label: 'week', seconds: 604800 },
+        { label: 'day', seconds: 86400 },
+        { label: 'hour', seconds: 3600 },
+        { label: 'minute', seconds: 60 },
+    ];
+    for (const { label, seconds: s } of intervals) {
+        const count = Math.floor(seconds / s);
+        if (count >= 1) return `${count} ${label}${count > 1 ? 's' : ''} ago`;
+    }
+    return 'Just now';
+}
+
+function CommunityActivity() {
+    const [activity, setActivity] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        getReviews()
+            .then((data) => {
+                const sorted = (data || [])
+                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                    .slice(0, 6);
+                setActivity(sorted);
+            })
+            .catch(console.error)
+            .finally(() => setLoading(false));
+    }, []);
+
+    if (loading || activity.length === 0) return null;
+
+    return (
+        <div
+            className="community-section"
+            style={{
+                maxWidth: 1200,
+                margin: '0 auto',
+                padding: '48px 32px 56px',
+            }}
+        >
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: 8,
+                marginBottom: 28,
+            }}>
+                <h2 style={{
+                    fontFamily: "'Bebas Neue', sans-serif",
+                    fontSize: 28,
+                    fontWeight: 400,
+                    letterSpacing: 3,
+                    color: '#fff',
+                    margin: 0,
+                }}>
+                    💬 Community Activity
+                </h2>
+                <span className="community-label" style={{
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: 11,
+                    fontWeight: 500,
+                    color: '#555',
+                    textTransform: 'uppercase',
+                    letterSpacing: 1,
+                }}>
+                    Recent reviews
+                </span>
+            </div>
+
+            <div className="community-grid" style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                gap: 16,
+            }}>
+                {activity.map((r) => (
+                    <div
+                        key={r.id}
+                        style={{
+                            background: '#0e0e0e',
+                            border: '1px solid #1a1a1a',
+                            borderRadius: 14,
+                            padding: 20,
+                            cursor: 'pointer',
+                            transition: 'border-color 0.2s, transform 0.2s',
+                        }}
+                        onClick={() => navigate(`/movie/${r.movieId}`)}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.borderColor = '#FFB80044';
+                            e.currentTarget.style.transform = 'translateY(-2px)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.borderColor = '#1a1a1a';
+                            e.currentTarget.style.transform = 'translateY(0)';
+                        }}
+                    >
+                        <div style={{ display: 'flex', gap: 14 }}>
+                            {r.posterPath && (
+                                <img
+                                    src={`${IMG_BASE}/w92${r.posterPath}`}
+                                    alt={r.movieTitle}
+                                    style={{
+                                        width: 48,
+                                        height: 72,
+                                        borderRadius: 8,
+                                        objectFit: 'cover',
+                                        flexShrink: 0,
+                                    }}
+                                />
+                            )}
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                                    <div
+                                        style={{
+                                            width: 28,
+                                            height: 28,
+                                            borderRadius: '50%',
+                                            background: 'linear-gradient(135deg, #FFB800, #e09500)',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontSize: 12,
+                                            fontWeight: 700,
+                                            color: '#050505',
+                                            fontFamily: "'Inter', sans-serif",
+                                            flexShrink: 0,
+                                        }}
+                                    >
+                                        {(r.username || '?')[0].toUpperCase()}
+                                    </div>
+                                    <span style={{
+                                        fontFamily: "'Inter', sans-serif",
+                                        fontSize: 13,
+                                        fontWeight: 600,
+                                        color: '#fff',
+                                    }}>
+                                        {r.username}
+                                    </span>
+                                    <span style={{
+                                        fontFamily: "'Inter', sans-serif",
+                                        fontSize: 11,
+                                        color: '#444',
+                                    }}>
+                                        {timeAgo(r.createdAt)}
+                                    </span>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+                                    <span style={{
+                                        fontFamily: "'Inter', sans-serif",
+                                        fontSize: 12,
+                                        fontWeight: 500,
+                                        color: '#888',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        whiteSpace: 'nowrap',
+                                    }}>
+                                        reviewed <span style={{ color: '#FFB800' }}>{r.movieTitle}</span>
+                                    </span>
+                                    <StarRating value={r.rating} readOnly size={13} />
+                                </div>
+                                <p style={{
+                                    fontFamily: "'Inter', sans-serif",
+                                    fontSize: 13,
+                                    fontWeight: 400,
+                                    color: '#777',
+                                    lineHeight: 1.5,
+                                    margin: 0,
+                                    overflow: 'hidden',
+                                    display: '-webkit-box',
+                                    WebkitLineClamp: 2,
+                                    WebkitBoxOrient: 'vertical',
+                                }}>
+                                    {r.text}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
+/* ════════════════════════════════════════════
    HOME PAGE
    ════════════════════════════════════════════ */
 
@@ -241,7 +436,7 @@ export default function HomePage() {
     }, []);
 
     return (
-        <div style={{ background: '#050505', minHeight: '100vh' }}>
+        <div style={{ background: '#050505', minHeight: '100vh', overflowX: 'hidden' }}>
             {/* Hero */}
             <HeroSection movies={heroMovies} />
 
@@ -255,6 +450,9 @@ export default function HomePage() {
                     />
                 ))}
             </div>
+
+            {/* Community Activity */}
+            <CommunityActivity />
 
             {/* Footer */}
             <Footer />
