@@ -5,50 +5,140 @@ import { getReviews, deleteReview, updateUser } from '../api/mockapi';
 import { IMG_BASE } from '../api/tmdb';
 import StarRating from '../components/StarRating';
 
-const pageStyle = {
-    padding: '96px 32px 48px',
-    maxWidth: 1200,
-    margin: '0 auto',
-    fontFamily: "'Inter', sans-serif",
+
+/* ═══════════════════════════════════════════
+   PROFILE PAGE — Styled to match CINELOG design
+   ═══════════════════════════════════════════ */
+
+/* ── Hero header section ── */
+const heroStyle = {
+    position: 'relative',
+    background: '#0a0a0a',
+    borderBottom: '1px solid #1a1a1a',
+    padding: '120px 64px 48px',
+    overflow: 'hidden',
 };
 
-const greeting = {
+const heroGrain = {
+    position: 'absolute',
+    inset: 0,
+    opacity: 0.03,
+    pointerEvents: 'none',
+    backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E\")",
+    backgroundRepeat: 'repeat',
+    backgroundSize: '150px 150px',
+};
+
+const heroInner = {
+    position: 'relative',
+    maxWidth: 1200,
+    margin: '0 auto',
+    display: 'flex',
+    alignItems: 'flex-end',
+    gap: 32,
+    flexWrap: 'wrap',
+};
+
+const avatarStyle = {
+    width: 96,
+    height: 96,
+    borderRadius: '50%',
+    background: 'linear-gradient(135deg, #FFB800 0%, #e5a600 100%)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 40,
+    color: '#050505',
     fontFamily: "'Bebas Neue', sans-serif",
-    fontSize: 56,
+    fontWeight: 400,
+    flexShrink: 0,
+    border: '3px solid rgba(255,184,0,0.3)',
+    boxShadow: '0 0 40px rgba(255,184,0,0.15)',
+};
+
+const heroTextCol = {
+    flex: 1,
+};
+
+const greetingStyle = {
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: 52,
     fontWeight: 400,
     letterSpacing: 3,
     color: '#fff',
-    marginBottom: 4,
+    lineHeight: 1,
+    marginBottom: 6,
 };
 
-const subGreeting = {
+const memberSince = {
     fontFamily: "'Inter', sans-serif",
-    color: '#666',
-    fontSize: 15,
+    fontSize: 13,
     fontWeight: 300,
-    marginBottom: 36,
+    color: '#555',
+    letterSpacing: 0.5,
 };
 
+/* ── Stats row ── */
+const statsRow = {
+    display: 'flex',
+    gap: 32,
+    flexWrap: 'wrap',
+};
+
+const statItem = {
+    textAlign: 'center',
+};
+
+const statNumber = {
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: 36,
+    fontWeight: 400,
+    color: '#FFB800',
+    lineHeight: 1,
+    letterSpacing: 1,
+};
+
+const statLabel = {
+    fontFamily: "'Inter', sans-serif",
+    fontSize: 10,
+    fontWeight: 700,
+    textTransform: 'uppercase',
+    letterSpacing: 2,
+    color: '#555',
+    marginTop: 4,
+};
+
+/* ── Content section ── */
+const contentStyle = {
+    maxWidth: 1200,
+    margin: '0 auto',
+    padding: '0 64px 64px',
+    fontFamily: "'Inter', sans-serif",
+};
+
+/* ── Tabs ── */
 const tabRow = {
     display: 'flex',
     gap: 0,
     borderBottom: '1px solid #1e1e1e',
-    marginBottom: 32,
+    marginBottom: 36,
+    paddingTop: 36,
 };
 
 const tabBase = {
-    padding: '12px 28px',
-    fontSize: 12,
+    padding: '14px 32px',
+    fontSize: 11,
     fontWeight: 700,
     textTransform: 'uppercase',
     letterSpacing: 2,
     cursor: 'pointer',
-    color: '#666',
+    color: '#555',
     background: 'none',
     border: 'none',
     borderBottom: '2px solid transparent',
     fontFamily: "'Inter', sans-serif",
-    transition: 'all 0.2s',
+    transition: 'color 0.2s, border-color 0.2s',
+    position: 'relative',
 };
 
 const tabActive = {
@@ -57,9 +147,10 @@ const tabActive = {
     borderBottomColor: '#FFB800',
 };
 
+/* ── Movie grid ── */
 const gridStyle = {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))',
     gap: 20,
 };
 
@@ -69,7 +160,7 @@ const movieItem = {
     overflow: 'hidden',
     background: '#141414',
     cursor: 'pointer',
-    transition: 'transform 0.2s',
+    transition: 'transform 0.25s ease, box-shadow 0.25s ease',
 };
 
 const imgStyle = {
@@ -81,30 +172,34 @@ const imgStyle = {
 
 const removeBtn = {
     position: 'absolute',
-    top: 8,
-    right: 8,
-    width: 28,
-    height: 28,
+    top: 10,
+    right: 10,
+    width: 30,
+    height: 30,
     borderRadius: '50%',
-    background: 'rgba(0,0,0,0.7)',
-    border: 'none',
+    background: 'rgba(5,5,5,0.8)',
+    backdropFilter: 'blur(8px)',
+    border: '1px solid rgba(255,255,255,0.1)',
     color: '#e85454',
-    fontSize: 14,
+    fontSize: 13,
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    transition: 'all 0.2s',
+    zIndex: 2,
 };
 
 const infoStyle = {
-    padding: '10px 12px',
+    padding: '12px 14px',
 };
 
 const titleStyle = {
     fontFamily: "'Inter', sans-serif",
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: 600,
     textTransform: 'uppercase',
+    letterSpacing: 0.5,
     color: '#fff',
     margin: 0,
     overflow: 'hidden',
@@ -112,30 +207,102 @@ const titleStyle = {
     whiteSpace: 'nowrap',
 };
 
+/* ── Review cards ── */
 const reviewCard = {
     background: '#0e0e0e',
     border: '1px solid #1e1e1e',
     borderRadius: 12,
-    padding: '20px 24px',
+    padding: '24px 28px',
     marginBottom: 16,
     display: 'flex',
-    gap: 20,
+    gap: 24,
+    transition: 'border-color 0.2s',
 };
 
 const reviewPoster = {
-    width: 70,
+    width: 80,
     borderRadius: 8,
     flexShrink: 0,
     cursor: 'pointer',
+    transition: 'transform 0.2s',
+    objectFit: 'cover',
+    aspectRatio: '2/3',
 };
 
-const emptyState = {
-    textAlign: 'center',
-    color: '#555',
-    marginTop: 60,
+const reviewMovieTitle = {
+    color: '#fff',
+    fontWeight: 600,
+    fontSize: 15,
     fontFamily: "'Inter', sans-serif",
+    letterSpacing: 0.3,
+};
+
+const reviewDeleteBtn = {
+    background: 'none',
+    border: '1px solid rgba(232,84,84,0.3)',
+    color: '#e85454',
+    cursor: 'pointer',
+    fontSize: 10,
+    fontFamily: "'Inter', sans-serif",
+    fontWeight: 700,
+    textTransform: 'uppercase',
+    letterSpacing: 2,
+    padding: '5px 14px',
+    borderRadius: 20,
+    transition: 'all 0.2s',
+};
+
+const reviewText = {
+    color: '#999',
     fontSize: 14,
+    fontWeight: 400,
+    lineHeight: 1.7,
+    margin: '10px 0 0',
+    fontFamily: "'Inter', sans-serif",
+};
+
+const reviewDate = {
+    color: '#444',
+    fontSize: 11,
+    fontFamily: "'Inter', sans-serif",
+    marginTop: 10,
+    display: 'block',
+    letterSpacing: 0.5,
+};
+
+/* ── Empty states ── */
+const emptyWrap = {
+    textAlign: 'center',
+    padding: '64px 0',
+};
+
+const emptyIcon = {
+    width: 80,
+    height: 80,
+    borderRadius: '50%',
+    background: 'rgba(255,184,0,0.06)',
+    border: '1px solid rgba(255,184,0,0.15)',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 32,
+    marginBottom: 20,
+};
+
+const emptyTitle = {
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: 28,
+    fontWeight: 400,
+    letterSpacing: 2,
+    color: '#fff',
+    marginBottom: 8,
+};
+
+const emptySub = {
+    fontFamily: "'Inter', sans-serif",
+    fontSize: 13,
     fontWeight: 300,
+    color: '#555',
 };
 
 const placeholderStyle = {
@@ -148,6 +315,10 @@ const placeholderStyle = {
     color: '#555',
     fontSize: 28,
 };
+
+/* ═══════════════════════════════════════════
+   COMPONENT
+   ═══════════════════════════════════════════ */
 
 export default function ProfilePage() {
     const { user, refreshUser } = useAuth();
@@ -181,13 +352,23 @@ export default function ProfilePage() {
 
     const watched = user?.watched || [];
     const watchlist = user?.watchlist || [];
+    const initial = (user?.username || '?')[0].toUpperCase();
 
     function renderMovieGrid(list, listName) {
         if (list.length === 0) {
             return (
-                <div style={emptyState}>
-                    <p style={{ fontSize: 48, marginBottom: 12 }}>🎬</p>
-                    <p>No movies in your {listName} yet</p>
+                <div style={emptyWrap}>
+                    <div style={emptyIcon}>
+                        {listName === 'watched' ? '👁' : '📋'}
+                    </div>
+                    <h3 style={emptyTitle}>
+                        {listName === 'watched' ? 'No Movies Watched Yet' : 'Watchlist Is Empty'}
+                    </h3>
+                    <p style={emptySub}>
+                        {listName === 'watched'
+                            ? 'Start exploring and mark movies as watched'
+                            : 'Browse movies and add them to your watchlist'}
+                    </p>
                 </div>
             );
         }
@@ -198,8 +379,14 @@ export default function ProfilePage() {
                         key={m.movieId}
                         style={movieItem}
                         onClick={() => navigate(`/movie/${m.movieId}`)}
-                        onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.03)')}
-                        onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.transform = 'scale(1.04)';
+                            e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.5)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = 'scale(1)';
+                            e.currentTarget.style.boxShadow = 'none';
+                        }}
                     >
                         <button
                             style={removeBtn}
@@ -208,6 +395,14 @@ export default function ProfilePage() {
                                 handleRemoveFromList(listName, m.movieId);
                             }}
                             title="Remove"
+                            onMouseEnter={(e) => {
+                                e.target.style.background = 'rgba(232,84,84,0.2)';
+                                e.target.style.borderColor = '#e85454';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.target.style.background = 'rgba(5,5,5,0.8)';
+                                e.target.style.borderColor = 'rgba(255,255,255,0.1)';
+                            }}
                         >
                             ✕
                         </button>
@@ -232,86 +427,158 @@ export default function ProfilePage() {
 
     function renderReviews() {
         if (loadingReviews) {
-            return <p style={{ color: '#666', textAlign: 'center' }}>Loading…</p>;
+            return (
+                <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                    {[0, 1, 2].map((i) => (
+                        <div
+                            key={i}
+                            style={{
+                                flex: '1 1 100%',
+                                height: 120,
+                                borderRadius: 12,
+                                background: '#141414',
+                                animation: 'pulse 1.5s ease-in-out infinite',
+                            }}
+                        />
+                    ))}
+                </div>
+            );
         }
         if (reviews.length === 0) {
             return (
-                <div style={emptyState}>
-                    <p style={{ fontSize: 48, marginBottom: 12 }}>✍️</p>
-                    <p>You haven't written any reviews yet</p>
+                <div style={emptyWrap}>
+                    <div style={emptyIcon}>✍️</div>
+                    <h3 style={emptyTitle}>No Reviews Yet</h3>
+                    <p style={emptySub}>Watch a movie and share your thoughts</p>
                 </div>
             );
         }
         return reviews.map((r) => (
-            <div key={r.id} style={reviewCard}>
+            <div
+                key={r.id}
+                style={reviewCard}
+                onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#2a2a2a')}
+                onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#1e1e1e')}
+            >
                 {r.posterPath ? (
                     <img
                         src={`${IMG_BASE}/w154${r.posterPath}`}
                         alt={r.movieTitle}
                         style={reviewPoster}
                         onClick={() => navigate(`/movie/${r.movieId}`)}
+                        onMouseEnter={(e) => (e.target.style.transform = 'scale(1.05)')}
+                        onMouseLeave={(e) => (e.target.style.transform = 'scale(1)')}
                     />
                 ) : (
                     <div
-                        style={{ ...reviewPoster, width: 70, height: 100, background: '#1e1e1e', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#555', fontSize: 20 }}
+                        style={{
+                            ...reviewPoster,
+                            width: 80,
+                            height: 120,
+                            background: '#1e1e1e',
+                            borderRadius: 8,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: '#555',
+                            fontSize: 20,
+                        }}
                         onClick={() => navigate(`/movie/${r.movieId}`)}
                     >
                         🎬
                     </div>
                 )}
                 <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                        <span style={{ color: '#fff', fontWeight: 600, fontSize: 15, fontFamily: "'Inter', sans-serif" }}>
-                            {r.movieTitle}
-                        </span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                        <span style={reviewMovieTitle}>{r.movieTitle}</span>
                         <button
-                            style={{ background: 'none', border: 'none', color: '#e85454', cursor: 'pointer', fontSize: 12, fontFamily: "'Inter', sans-serif", fontWeight: 700, textTransform: 'uppercase', letterSpacing: 2 }}
+                            style={reviewDeleteBtn}
                             onClick={() => handleDeleteReview(r.id)}
+                            onMouseEnter={(e) => {
+                                e.target.style.background = 'rgba(232,84,84,0.1)';
+                                e.target.style.borderColor = '#e85454';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.target.style.background = 'none';
+                                e.target.style.borderColor = 'rgba(232,84,84,0.3)';
+                            }}
                         >
                             Delete
                         </button>
                     </div>
                     <StarRating value={r.rating} readOnly size={16} />
-                    <p style={{ color: '#bbb', fontSize: 14, fontWeight: 400, lineHeight: 1.6, margin: '8px 0 0', fontFamily: "'Inter', sans-serif" }}>
-                        {r.text}
-                    </p>
-                    <span style={{ color: '#555', fontSize: 11, fontFamily: "'Inter', sans-serif", marginTop: 8, display: 'block' }}>
-                        {new Date(r.createdAt).toLocaleDateString()}
+                    <p style={reviewText}>{r.text}</p>
+                    <span style={reviewDate}>
+                        {new Date(r.createdAt).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                        })}
                     </span>
                 </div>
             </div>
         ));
     }
 
-    return (
-        <div style={pageStyle}>
-            <h1 style={greeting}>Hey, {user?.username} 👋</h1>
-            <p style={subGreeting}>Your movie journal</p>
+    const tabs = [
+        { id: 'watched', label: 'Watched', count: watched.length },
+        { id: 'watchlist', label: 'Watchlist', count: watchlist.length },
+        { id: 'reviews', label: 'Reviews', count: reviews.length },
+    ];
 
-            <div style={tabRow}>
-                <button
-                    style={tab === 'watched' ? tabActive : tabBase}
-                    onClick={() => setTab('watched')}
-                >
-                    Watched ({watched.length})
-                </button>
-                <button
-                    style={tab === 'watchlist' ? tabActive : tabBase}
-                    onClick={() => setTab('watchlist')}
-                >
-                    Watchlist ({watchlist.length})
-                </button>
-                <button
-                    style={tab === 'reviews' ? tabActive : tabBase}
-                    onClick={() => setTab('reviews')}
-                >
-                    Reviews ({reviews.length})
-                </button>
+    return (
+        <div style={{ background: '#050505', minHeight: '100vh' }}>
+            {/* ── Hero header ── */}
+            <div style={heroStyle}>
+                <div style={heroGrain} />
+                <div style={heroInner}>
+                    <div style={avatarStyle}>{initial}</div>
+                    <div style={heroTextCol}>
+                        <h1 style={greetingStyle}>{user?.username}</h1>
+                        <p style={memberSince}>Your personal movie journal</p>
+                    </div>
+                    <div style={statsRow}>
+                        <div style={statItem}>
+                            <div style={statNumber}>{watched.length}</div>
+                            <div style={statLabel}>Watched</div>
+                        </div>
+                        <div style={statItem}>
+                            <div style={statNumber}>{watchlist.length}</div>
+                            <div style={statLabel}>Watchlist</div>
+                        </div>
+                        <div style={statItem}>
+                            <div style={statNumber}>{reviews.length}</div>
+                            <div style={statLabel}>Reviews</div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            {tab === 'watched' && renderMovieGrid(watched, 'watched')}
-            {tab === 'watchlist' && renderMovieGrid(watchlist, 'watchlist')}
-            {tab === 'reviews' && renderReviews()}
+            {/* ── Content ── */}
+            <div style={contentStyle}>
+                <div style={tabRow}>
+                    {tabs.map((t) => (
+                        <button
+                            key={t.id}
+                            style={tab === t.id ? tabActive : tabBase}
+                            onClick={() => setTab(t.id)}
+                            onMouseEnter={(e) => {
+                                if (tab !== t.id) e.target.style.color = '#aaa';
+                            }}
+                            onMouseLeave={(e) => {
+                                if (tab !== t.id) e.target.style.color = '#555';
+                            }}
+                        >
+                            {t.label} ({t.count})
+                        </button>
+                    ))}
+                </div>
+
+                {tab === 'watched' && renderMovieGrid(watched, 'watched')}
+                {tab === 'watchlist' && renderMovieGrid(watchlist, 'watchlist')}
+                {tab === 'reviews' && renderReviews()}
+            </div>
+
         </div>
     );
 }
