@@ -7,31 +7,34 @@ const pageStyle = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    background: '#080809',
-    fontFamily: "'DM Sans', sans-serif",
+    background: '#050505',
+    fontFamily: "'Inter', sans-serif",
 };
 
 const cardStyle = {
     width: 400,
     maxWidth: '90vw',
-    background: '#111114',
+    background: '#0e0e0e',
     borderRadius: 16,
-    border: '1px solid #26262f',
+    border: '1px solid #1e1e1e',
     padding: '48px 40px',
 };
 
 const logoStyle = {
-    fontFamily: "'Playfair Display', serif",
-    fontSize: 36,
-    fontWeight: 800,
-    color: '#e9a840',
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: 56,
+    fontWeight: 400,
+    letterSpacing: 3,
+    color: '#FFB800',
     textAlign: 'center',
     marginBottom: 8,
 };
 
 const subtitleStyle = {
+    fontFamily: "'Inter', sans-serif",
     color: '#666',
-    fontSize: 14,
+    fontSize: 15,
+    fontWeight: 300,
     textAlign: 'center',
     marginBottom: 32,
 };
@@ -41,41 +44,44 @@ const tabRow = {
     borderRadius: 10,
     overflow: 'hidden',
     marginBottom: 28,
-    border: '1px solid #26262f',
+    border: '1px solid #1e1e1e',
 };
 
 const tabBase = {
     flex: 1,
     padding: '10px 0',
-    fontSize: 13,
-    fontWeight: 600,
+    fontSize: 12,
+    fontWeight: 700,
+    textTransform: 'uppercase',
+    letterSpacing: 2,
     border: 'none',
     cursor: 'pointer',
-    fontFamily: "'DM Sans', sans-serif",
+    fontFamily: "'Inter', sans-serif",
     transition: 'background 0.2s',
 };
 
 const tabActive = {
     ...tabBase,
-    background: '#e9a840',
-    color: '#080809',
+    background: '#FFB800',
+    color: '#050505',
 };
 
 const tabInactive = {
     ...tabBase,
-    background: '#17171c',
+    background: '#141414',
     color: '#777',
 };
 
 const inputStyle = {
     width: '100%',
     padding: '12px 16px',
-    background: '#17171c',
-    border: '1px solid #26262f',
+    background: '#141414',
+    border: '1px solid #1e1e1e',
     borderRadius: 10,
     color: '#fff',
     fontSize: 14,
-    fontFamily: "'DM Sans', sans-serif",
+    fontFamily: "'Inter', sans-serif",
+    fontWeight: 400,
     marginBottom: 16,
     outline: 'none',
     boxSizing: 'border-box',
@@ -102,8 +108,9 @@ const toggleBtnStyle = {
     color: '#555',
     fontSize: 11,
     fontWeight: 700,
-    fontFamily: "'DM Sans', sans-serif",
+    fontFamily: "'Inter', sans-serif",
     letterSpacing: '0.05em',
+    textTransform: 'uppercase',
     cursor: 'pointer',
     padding: '4px 6px',
     transition: 'color 0.2s',
@@ -112,14 +119,16 @@ const toggleBtnStyle = {
 const btnStyle = {
     width: '100%',
     padding: '13px 0',
-    background: '#e9a840',
-    color: '#080809',
+    background: '#FFB800',
+    color: '#050505',
     border: 'none',
     borderRadius: 10,
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: 700,
+    textTransform: 'uppercase',
+    letterSpacing: 2,
     cursor: 'pointer',
-    fontFamily: "'DM Sans', sans-serif",
+    fontFamily: "'Inter', sans-serif",
     marginTop: 8,
     transition: 'opacity 0.2s',
 };
@@ -127,6 +136,7 @@ const btnStyle = {
 const errorStyle = {
     color: '#e85454',
     fontSize: 13,
+    fontWeight: 400,
     textAlign: 'center',
     marginBottom: 12,
 };
@@ -166,7 +176,7 @@ export default function LoginPage() {
     return (
         <div style={pageStyle}>
             <div style={cardStyle}>
-                <h1 style={logoStyle}>cinelog</h1>
+                <h1 style={logoStyle}>CINELOG</h1>
                 <p style={subtitleStyle}>Your personal movie journal</p>
 
                 <div style={tabRow}>
@@ -212,7 +222,7 @@ export default function LoginPage() {
                             type="button"
                             style={toggleBtnStyle}
                             onClick={() => setShowPassword((v) => !v)}
-                            onMouseEnter={(e) => (e.target.style.color = '#e9a840')}
+                            onMouseEnter={(e) => (e.target.style.color = '#FFB800')}
                             onMouseLeave={(e) => (e.target.style.color = '#555')}
                             tabIndex={-1}
                         >

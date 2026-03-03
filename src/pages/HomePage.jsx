@@ -1,139 +1,224 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { getTrending } from '../api/tmdb';
+import { useNavigate } from 'react-router-dom';
+import { getTrending, getTopRated, getDiscover, IMG_BASE } from '../api/tmdb';
 import MovieCard from '../components/MovieCard';
 
-const MAX_PAGE = 20;
-
-const pageStyle = {
-    padding: '96px 32px 48px',
-    maxWidth: 1200,
-    margin: '0 auto',
+/* ─── Genre map (TMDB IDs → labels) ─── */
+const GENRE_MAP = {
+    28: 'Action', 12: 'Adventure', 16: 'Animation', 35: 'Comedy',
+    80: 'Crime', 99: 'Documentary', 18: 'Drama', 10751: 'Family',
+    14: 'Fantasy', 36: 'History', 27: 'Horror', 10402: 'Music',
+    9648: 'Mystery', 10749: 'Romance', 878: 'Sci-Fi', 10770: 'TV Movie',
+    53: 'Thriller', 10752: 'War', 37: 'Western',
 };
 
-const headerStyle = {
-    fontFamily: "'Playfair Display', serif",
-    fontSize: 32,
-    fontWeight: 700,
-    color: '#fff',
-    marginBottom: 8,
-};
+/* ─── Category definitions ─── */
+const CATEGORIES = [
+    { id: 'trending', title: 'Trending This Week', fetcher: () => getTrending() },
+    { id: 'top_rated', title: 'Top Rated', fetcher: () => getTopRated() },
+    { id: 'action', title: 'Action', fetcher: () => getDiscover({ with_genres: 28 }) },
+    { id: 'horror', title: 'Horror', fetcher: () => getDiscover({ with_genres: 27 }) },
+    { id: 'scifi', title: 'Sci-Fi', fetcher: () => getDiscover({ with_genres: 878 }) },
+    { id: 'comedy', title: 'Comedy', fetcher: () => getDiscover({ with_genres: 35 }) },
+];
 
-const subStyle = {
-    fontFamily: "'DM Sans', sans-serif",
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 36,
-};
+/* ════════════════════════════════════════════
+   HERO SECTION
+   ════════════════════════════════════════════ */
 
-const gridStyle = {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-    gap: 24,
-};
+function HeroSection({ movies }) {
+    const [activeIdx, setActiveIdx] = useState(0);
+    const navigate = useNavigate();
+    const timerRef = useRef(null);
 
-const skeletonCard = {
-    borderRadius: 12,
-    background: '#17171c',
-    aspectRatio: '2/3',
-    animation: 'pulse 1.5s ease-in-out infinite',
-};
+    const heroMovies = movies.slice(0, 5);
 
-const loaderWrap = {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 6,
-    padding: '32px 0 16px',
-};
-
-const dotStyle = {
-    width: 6,
-    height: 6,
-    borderRadius: '50%',
-    background: '#e9a840',
-    animation: 'pulse 1s ease-in-out infinite',
-};
-
-export default function HomePage() {
-    const [movies, setMovies] = useState([]);
-    const [page, setPage] = useState(1);
-    const [loading, setLoading] = useState(true);
-    const [loadingMore, setLoadingMore] = useState(false);
-    const [hasMore, setHasMore] = useState(true);
-    const observer = useRef(null);
-
-    // Fetch page 1 on mount
+    // Auto-rotate every 6s
     useEffect(() => {
-        getTrending(1)
-            .then((data) => {
-                setMovies(data.results || []);
-                if (!data.results || data.results.length === 0) setHasMore(false);
-            })
+        if (heroMovies.length === 0) return;
+        timerRef.current = setInterval(() => {
+            setActiveIdx((prev) => (prev + 1) % heroMovies.length);
+        }, 6000);
+        return () => clearInterval(timerRef.current);
+    }, [heroMovies.length]);
+
+    function goToSlide(idx) {
+        setActiveIdx(idx);
+        clearInterval(timerRef.current);
+        timerRef.current = setInterval(() => {
+            setActiveIdx((prev) => (prev + 1) % heroMovies.length);
+        }, 6000);
+    }
+
+    if (heroMovies.length === 0) {
+        return <div className="hero" />;
+    }
+
+    return (
+        <section className="hero">
+            {heroMovies.map((movie, idx) => {
+                const genres = (movie.genre_ids || [])
+                    .slice(0, 3)
+                    .map((id) => GENRE_MAP[id])
+                    .filter(Boolean);
+
+                return (
+                    <div
+                        key={movie.id}
+                        className={`hero-slide ${idx === activeIdx ? 'active' : ''}`}
+                    >
+                        <div
+                            className="hero-backdrop"
+                            style={{
+                                backgroundImage: movie.backdrop_path
+                                    ? `url(${IMG_BASE}/original${movie.backdrop_path})`
+                                    : 'none',
+                            }}
+                        />
+                        <div className="hero-overlay" />
+                        <div className="hero-grain" />
+
+                        {idx === activeIdx && (
+                            <div className="hero-content">
+                                <h1 className="hero-title">{movie.title}</h1>
+
+                                {genres.length > 0 && (
+                                    <div className="hero-genres">
+                                        {genres.map((g) => (
+                                            <span key={g} className="hero-genre-tag">
+                                                {g}
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {movie.vote_average > 0 && (
+                                    <div className="hero-rating">
+                                        ★ {movie.vote_average.toFixed(1)}
+                                    </div>
+                                )}
+
+                                {movie.overview && (
+                                    <p className="hero-overview">{movie.overview}</p>
+                                )}
+
+                                <button
+                                    className="hero-cta"
+                                    onClick={() => navigate(`/movie/${movie.id}`)}
+                                >
+                                    ▶ VIEW FILM
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                );
+            })}
+
+            {/* Pagination dots */}
+            <div className="hero-dots">
+                {heroMovies.map((_, i) => (
+                    <button
+                        key={i}
+                        className={`hero-dot ${i === activeIdx ? 'active' : ''}`}
+                        onClick={() => goToSlide(i)}
+                        aria-label={`Go to slide ${i + 1}`}
+                    />
+                ))}
+            </div>
+        </section>
+    );
+}
+
+/* ════════════════════════════════════════════
+   CATEGORY ROW
+   ════════════════════════════════════════════ */
+
+function CategoryRow({ title, fetcher }) {
+    const [movies, setMovies] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const scrollRef = useRef(null);
+
+    useEffect(() => {
+        fetcher()
+            .then((data) => setMovies(data.results || []))
             .catch(console.error)
             .finally(() => setLoading(false));
     }, []);
 
-    // Fetch subsequent pages when `page` changes (skip page 1, already loaded)
-    useEffect(() => {
-        if (page === 1) return;
-        setLoadingMore(true);
-        getTrending(page)
-            .then((data) => {
-                const results = data.results || [];
-                setMovies((prev) => [...prev, ...results]);
-                if (results.length === 0 || page >= MAX_PAGE) setHasMore(false);
-            })
-            .catch(console.error)
-            .finally(() => setLoadingMore(false));
-    }, [page]);
-
-    // Sentinel ref callback — sets up IntersectionObserver
-    const sentinelRef = useCallback(
-        (node) => {
-            if (loadingMore) return;
-            if (observer.current) observer.current.disconnect();
-
-            observer.current = new IntersectionObserver(
-                (entries) => {
-                    if (entries[0].isIntersecting && hasMore && !loadingMore) {
-                        setPage((prev) => prev + 1);
-                    }
-                },
-                { rootMargin: '200px' }
-            );
-
-            if (node) observer.current.observe(node);
-        },
-        [loadingMore, hasMore]
-    );
+    function scroll(direction) {
+        if (!scrollRef.current) return;
+        const amount = scrollRef.current.offsetWidth * 0.7;
+        scrollRef.current.scrollBy({
+            left: direction === 'left' ? -amount : amount,
+            behavior: 'smooth',
+        });
+    }
 
     return (
-        <div style={pageStyle}>
-            <h1 style={headerStyle}>Trending This Week</h1>
-            <p style={subStyle}>What everyone is watching right now</p>
-
-            <div style={gridStyle}>
-                {loading
-                    ? Array.from({ length: 12 }).map((_, i) => (
-                        <div key={i} style={skeletonCard} />
-                    ))
-                    : movies.map((movie) => (
-                        <MovieCard key={movie.id} movie={movie} />
-                    ))}
+        <div className="category-row">
+            <div className="category-header">
+                <h2 className="category-title">{title}</h2>
+                <div className="category-arrows">
+                    <button
+                        className="category-arrow"
+                        onClick={() => scroll('left')}
+                        aria-label="Scroll left"
+                    >
+                        ‹
+                    </button>
+                    <button
+                        className="category-arrow"
+                        onClick={() => scroll('right')}
+                        aria-label="Scroll right"
+                    >
+                        ›
+                    </button>
+                </div>
             </div>
 
-            {/* Sentinel div observed for infinite scroll */}
-            {!loading && hasMore && (
-                <div ref={sentinelRef}>
-                    {loadingMore && (
-                        <div style={loaderWrap}>
-                            <span style={{ ...dotStyle, animationDelay: '0s' }} />
-                            <span style={{ ...dotStyle, animationDelay: '0.15s' }} />
-                            <span style={{ ...dotStyle, animationDelay: '0.3s' }} />
+            <div className="category-scroll" ref={scrollRef}>
+                {loading
+                    ? Array.from({ length: 10 }).map((_, i) => (
+                        <div key={i} className="category-skeleton" />
+                    ))
+                    : movies.map((movie) => (
+                        <div key={movie.id} className="category-scroll-item">
+                            <MovieCard movie={movie} />
                         </div>
-                    )}
-                </div>
-            )}
+                    ))}
+            </div>
+        </div>
+    );
+}
+
+/* ════════════════════════════════════════════
+   HOME PAGE
+   ════════════════════════════════════════════ */
+
+export default function HomePage() {
+    const [heroMovies, setHeroMovies] = useState([]);
+
+    useEffect(() => {
+        getTrending(1)
+            .then((data) => setHeroMovies(data.results || []))
+            .catch(console.error);
+    }, []);
+
+    return (
+        <div style={{ background: '#050505', minHeight: '100vh' }}>
+            {/* Hero */}
+            <HeroSection movies={heroMovies} />
+
+            {/* Category rows */}
+            <div className="categories-section">
+                {CATEGORIES.map((cat) => (
+                    <CategoryRow
+                        key={cat.id}
+                        title={cat.title}
+                        fetcher={cat.fetcher}
+                    />
+                ))}
+            </div>
         </div>
     );
 }

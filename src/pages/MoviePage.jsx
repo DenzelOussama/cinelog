@@ -24,7 +24,7 @@ const gradient = {
     position: 'absolute',
     inset: 0,
     background:
-        'linear-gradient(to top, #080809 0%, rgba(8,8,9,0.6) 50%, rgba(8,8,9,0.85) 100%)',
+        'linear-gradient(to top, #050505 0%, rgba(5,5,5,0.6) 50%, rgba(5,5,5,0.85) 100%)',
 };
 const heroContent = {
     position: 'relative',
@@ -43,42 +43,49 @@ const posterStyle = {
     flexShrink: 0,
 };
 const titleStyle = {
-    fontFamily: "'Playfair Display', serif",
-    fontSize: 40,
-    fontWeight: 700,
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: 56,
+    fontWeight: 400,
+    letterSpacing: 3,
     color: '#fff',
     margin: '0 0 8px',
-    lineHeight: 1.15,
+    lineHeight: 1,
 };
 const metaRow = {
     display: 'flex',
     gap: 16,
     color: '#999',
     fontSize: 14,
-    fontFamily: "'DM Sans', sans-serif",
+    fontFamily: "'Inter', sans-serif",
+    fontWeight: 400,
     marginBottom: 20,
     flexWrap: 'wrap',
 };
 const genreTag = {
     display: 'inline-block',
-    background: 'rgba(233,168,64,0.1)',
-    color: '#e9a840',
-    fontSize: 12,
+    background: 'rgba(255,184,0,0.1)',
+    color: '#FFB800',
+    fontSize: 11,
+    fontWeight: 600,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
     padding: '4px 12px',
     borderRadius: 20,
-    fontFamily: "'DM Sans', sans-serif",
+    fontFamily: "'Inter', sans-serif",
 };
 const overviewStyle = {
-    color: '#bbb',
+    color: '#999',
     fontSize: 15,
+    fontWeight: 300,
     lineHeight: 1.7,
-    fontFamily: "'DM Sans', sans-serif",
+    fontFamily: "'Inter', sans-serif",
     maxWidth: 600,
 };
 const sectionTitle = {
-    fontFamily: "'Playfair Display', serif",
-    fontSize: 24,
-    fontWeight: 700,
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: 28,
+    fontWeight: 400,
+    letterSpacing: 3,
     color: '#fff',
     margin: '0 0 20px',
 };
@@ -92,12 +99,14 @@ const container = {
 const actionBtn = (active) => ({
     padding: '10px 22px',
     borderRadius: 10,
-    border: active ? 'none' : '1px solid #26262f',
-    background: active ? '#e9a840' : '#17171c',
-    color: active ? '#080809' : '#ccc',
-    fontFamily: "'DM Sans', sans-serif",
-    fontSize: 13,
-    fontWeight: 600,
+    border: active ? 'none' : '1px solid #1e1e1e',
+    background: active ? '#FFB800' : '#141414',
+    color: active ? '#050505' : '#ccc',
+    fontFamily: "'Inter', sans-serif",
+    fontSize: 12,
+    fontWeight: 700,
+    textTransform: 'uppercase',
+    letterSpacing: 2,
     cursor: 'pointer',
     transition: 'all 0.2s',
 });
@@ -112,30 +121,33 @@ const castImg = {
     height: 90,
     borderRadius: '50%',
     objectFit: 'cover',
-    background: '#26262f',
+    background: '#1e1e1e',
 };
 const castName = {
     color: '#fff',
     fontSize: 12,
-    fontFamily: "'DM Sans', sans-serif",
+    fontWeight: 500,
+    fontFamily: "'Inter', sans-serif",
     marginTop: 8,
 };
 const castChar = {
     color: '#666',
     fontSize: 11,
-    fontFamily: "'DM Sans', sans-serif",
+    fontWeight: 400,
+    fontFamily: "'Inter', sans-serif",
 };
 
 const textAreaStyle = {
     width: '100%',
     minHeight: 100,
     padding: '12px 16px',
-    background: '#17171c',
-    border: '1px solid #26262f',
+    background: '#141414',
+    border: '1px solid #1e1e1e',
     borderRadius: 10,
     color: '#fff',
     fontSize: 14,
-    fontFamily: "'DM Sans', sans-serif",
+    fontWeight: 400,
+    fontFamily: "'Inter', sans-serif",
     resize: 'vertical',
     outline: 'none',
     boxSizing: 'border-box',
@@ -146,18 +158,20 @@ const submitBtn = {
     padding: '10px 32px',
     borderRadius: 10,
     border: 'none',
-    background: '#e9a840',
-    color: '#080809',
-    fontFamily: "'DM Sans', sans-serif",
-    fontSize: 13,
+    background: '#FFB800',
+    color: '#050505',
+    fontFamily: "'Inter', sans-serif",
+    fontSize: 12,
     fontWeight: 700,
+    textTransform: 'uppercase',
+    letterSpacing: 2,
     cursor: 'pointer',
     marginTop: 12,
 };
 
 const reviewCard = {
-    background: '#111114',
-    border: '1px solid #26262f',
+    background: '#0e0e0e',
+    border: '1px solid #1e1e1e',
     borderRadius: 12,
     padding: '20px 24px',
     marginBottom: 16,
@@ -292,7 +306,7 @@ export default function MoviePage() {
                             {year && <span>{year}</span>}
                             {runtime && <span>·  {runtime}</span>}
                             {movie.vote_average > 0 && (
-                                <span style={{ color: '#e9a840' }}>
+                                <span style={{ color: '#FFB800' }}>
                                     ★ {movie.vote_average.toFixed(1)}
                                 </span>
                             )}
@@ -337,7 +351,7 @@ export default function MoviePage() {
                                         style={castImg}
                                     />
                                 ) : (
-                                    <div style={{ ...castImg, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#26262f', color: '#555', fontSize: 28 }}>
+                                    <div style={{ ...castImg, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#1e1e1e', color: '#555', fontSize: 28 }}>
                                         👤
                                     </div>
                                 )}
@@ -377,15 +391,15 @@ export default function MoviePage() {
                     {reviews.map((r) => (
                         <div key={r.id} style={reviewCard}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                                <span style={{ color: '#fff', fontSize: 14, fontWeight: 600, fontFamily: "'DM Sans', sans-serif" }}>
+                                <span style={{ color: '#fff', fontSize: 14, fontWeight: 600, fontFamily: "'Inter', sans-serif" }}>
                                     {r.username}
                                 </span>
                                 <StarRating value={r.rating} readOnly size={16} />
                             </div>
-                            <p style={{ color: '#bbb', fontSize: 14, lineHeight: 1.6, fontFamily: "'DM Sans', sans-serif", margin: 0 }}>
+                            <p style={{ color: '#bbb', fontSize: 14, fontWeight: 400, lineHeight: 1.6, fontFamily: "'Inter', sans-serif", margin: 0 }}>
                                 {r.text}
                             </p>
-                            <span style={{ color: '#555', fontSize: 11, fontFamily: "'DM Sans', sans-serif", marginTop: 10, display: 'block' }}>
+                            <span style={{ color: '#555', fontSize: 11, fontFamily: "'Inter', sans-serif", marginTop: 10, display: 'block' }}>
                                 {new Date(r.createdAt).toLocaleDateString()}
                             </span>
                         </div>

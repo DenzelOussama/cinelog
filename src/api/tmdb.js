@@ -15,6 +15,14 @@ export function getTrending(page = 1) {
     return request('/trending/movie/week', { page });
 }
 
+export function getTopRated(page = 1) {
+    return request('/movie/top_rated', { page });
+}
+
+export function getDiscover(params = {}) {
+    return request('/discover/movie', params);
+}
+
 export function searchMovies(query, page = 1) {
     return request('/search/movie', { query, page });
 }

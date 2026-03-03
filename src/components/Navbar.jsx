@@ -11,18 +11,18 @@ const navStyle = {
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: '0 32px',
-    background: 'rgba(8,8,9,0.85)',
+    background: 'rgba(5,5,5,0.85)',
     backdropFilter: 'blur(12px)',
     zIndex: 100,
-    borderBottom: '1px solid #1a1a22',
+    borderBottom: '1px solid #1a1a1a',
 };
 
 const logoStyle = {
-    fontFamily: "'Playfair Display', serif",
-    fontSize: 22,
-    fontWeight: 700,
-    fontStyle: 'italic',
-    color: '#e9a840',
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: 32,
+    fontWeight: 400,
+    letterSpacing: 4,
+    color: '#FFB800',
     textDecoration: 'none',
 };
 
@@ -33,9 +33,11 @@ const linksStyle = {
 };
 
 const linkBase = {
-    fontFamily: "'DM Sans', sans-serif",
+    fontFamily: "'Inter', sans-serif",
     fontSize: 13,
     fontWeight: 500,
+    textTransform: 'uppercase',
+    letterSpacing: 2,
     color: '#888',
     textDecoration: 'none',
     padding: '6px 14px',
@@ -51,15 +53,18 @@ const linkActive = {
     color: '#fff',
     background: 'rgba(255,255,255,0.08)',
     border: '1px solid rgba(255,255,255,0.1)',
-    borderBottom: '2px solid #e9a840',
+    borderBottom: '2px solid #FFB800',
 };
 
 const signOutBtn = {
-    fontFamily: "'DM Sans', sans-serif",
-    fontSize: 13,
+    fontFamily: "'Inter', sans-serif",
+    fontSize: 12,
+    fontWeight: 700,
+    textTransform: 'uppercase',
+    letterSpacing: 2,
     color: '#666',
     background: 'none',
-    border: '1px solid #26262f',
+    border: '1px solid #2a2a2a',
     borderRadius: 8,
     padding: '6px 14px',
     cursor: 'pointer',
@@ -80,7 +85,7 @@ export default function Navbar() {
     return (
         <nav style={navStyle}>
             <Link to="/" style={logoStyle}>
-                cinelog
+                CINELOG
             </Link>
             <div style={linksStyle}>
                 {links.map(({ to, label }) => {
@@ -107,7 +112,7 @@ export default function Navbar() {
                     }}
                     onMouseLeave={(e) => {
                         e.target.style.color = '#666';
-                        e.target.style.borderColor = '#26262f';
+                        e.target.style.borderColor = '#2a2a2a';
                     }}
                 >
                     Sign out

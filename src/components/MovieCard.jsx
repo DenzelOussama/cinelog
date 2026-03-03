@@ -5,7 +5,7 @@ const cardStyle = {
     position: 'relative',
     borderRadius: 12,
     overflow: 'hidden',
-    background: '#17171c',
+    background: '#141414',
     cursor: 'pointer',
     transition: 'transform 0.25s ease, box-shadow 0.25s ease',
 };
@@ -22,9 +22,10 @@ const infoStyle = {
 };
 
 const titleStyle = {
-    fontFamily: "'DM Sans', sans-serif",
-    fontSize: 14,
+    fontFamily: "'Inter', sans-serif",
+    fontSize: 13,
     fontWeight: 600,
+    textTransform: 'uppercase',
     color: '#fff',
     margin: 0,
     overflow: 'hidden',
@@ -40,17 +41,18 @@ const metaStyle = {
 };
 
 const yearStyle = {
-    fontFamily: "'DM Sans', sans-serif",
+    fontFamily: "'Inter', sans-serif",
     fontSize: 12,
+    fontWeight: 400,
     color: '#888',
 };
 
 const ratingBadge = {
-    fontFamily: "'DM Sans', sans-serif",
+    fontFamily: "'Inter', sans-serif",
     fontSize: 11,
     fontWeight: 700,
-    color: '#e9a840',
-    background: 'rgba(233,168,64,0.12)',
+    color: '#FFB800',
+    background: 'rgba(255,184,0,0.12)',
     padding: '2px 8px',
     borderRadius: 6,
 };
@@ -58,7 +60,7 @@ const ratingBadge = {
 const placeholderStyle = {
     width: '100%',
     aspectRatio: '2/3',
-    background: '#26262f',
+    background: '#1e1e1e',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',

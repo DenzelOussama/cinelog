@@ -9,47 +9,52 @@ const pageStyle = {
     padding: '96px 32px 48px',
     maxWidth: 1200,
     margin: '0 auto',
-    fontFamily: "'DM Sans', sans-serif",
+    fontFamily: "'Inter', sans-serif",
 };
 
 const greeting = {
-    fontFamily: "'Playfair Display', serif",
-    fontSize: 32,
-    fontWeight: 700,
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: 56,
+    fontWeight: 400,
+    letterSpacing: 3,
     color: '#fff',
     marginBottom: 4,
 };
 
 const subGreeting = {
+    fontFamily: "'Inter', sans-serif",
     color: '#666',
-    fontSize: 14,
+    fontSize: 15,
+    fontWeight: 300,
     marginBottom: 36,
 };
 
 const tabRow = {
     display: 'flex',
     gap: 0,
-    borderBottom: '1px solid #26262f',
+    borderBottom: '1px solid #1e1e1e',
     marginBottom: 32,
 };
 
 const tabBase = {
     padding: '12px 28px',
-    fontSize: 14,
-    fontWeight: 600,
+    fontSize: 12,
+    fontWeight: 700,
+    textTransform: 'uppercase',
+    letterSpacing: 2,
     cursor: 'pointer',
     color: '#666',
     background: 'none',
     border: 'none',
     borderBottom: '2px solid transparent',
-    fontFamily: "'DM Sans', sans-serif",
+    fontFamily: "'Inter', sans-serif",
     transition: 'all 0.2s',
 };
 
 const tabActive = {
     ...tabBase,
-    color: '#e9a840',
-    borderBottomColor: '#e9a840',
+    color: '#FFB800',
+    borderBottomColor: '#FFB800',
 };
 
 const gridStyle = {
@@ -62,7 +67,7 @@ const movieItem = {
     position: 'relative',
     borderRadius: 12,
     overflow: 'hidden',
-    background: '#17171c',
+    background: '#141414',
     cursor: 'pointer',
     transition: 'transform 0.2s',
 };
@@ -96,8 +101,10 @@ const infoStyle = {
 };
 
 const titleStyle = {
+    fontFamily: "'Inter', sans-serif",
     fontSize: 13,
     fontWeight: 600,
+    textTransform: 'uppercase',
     color: '#fff',
     margin: 0,
     overflow: 'hidden',
@@ -106,8 +113,8 @@ const titleStyle = {
 };
 
 const reviewCard = {
-    background: '#111114',
-    border: '1px solid #26262f',
+    background: '#0e0e0e',
+    border: '1px solid #1e1e1e',
     borderRadius: 12,
     padding: '20px 24px',
     marginBottom: 16,
@@ -126,12 +133,15 @@ const emptyState = {
     textAlign: 'center',
     color: '#555',
     marginTop: 60,
+    fontFamily: "'Inter', sans-serif",
+    fontSize: 14,
+    fontWeight: 300,
 };
 
 const placeholderStyle = {
     width: '100%',
     aspectRatio: '2/3',
-    background: '#26262f',
+    background: '#1e1e1e',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -243,7 +253,7 @@ export default function ProfilePage() {
                     />
                 ) : (
                     <div
-                        style={{ ...reviewPoster, width: 70, height: 100, background: '#26262f', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#555', fontSize: 20 }}
+                        style={{ ...reviewPoster, width: 70, height: 100, background: '#1e1e1e', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#555', fontSize: 20 }}
                         onClick={() => navigate(`/movie/${r.movieId}`)}
                     >
                         🎬
@@ -251,21 +261,21 @@ export default function ProfilePage() {
                 )}
                 <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                        <span style={{ color: '#fff', fontWeight: 600, fontSize: 15 }}>
+                        <span style={{ color: '#fff', fontWeight: 600, fontSize: 15, fontFamily: "'Inter', sans-serif" }}>
                             {r.movieTitle}
                         </span>
                         <button
-                            style={{ background: 'none', border: 'none', color: '#e85454', cursor: 'pointer', fontSize: 13 }}
+                            style={{ background: 'none', border: 'none', color: '#e85454', cursor: 'pointer', fontSize: 12, fontFamily: "'Inter', sans-serif", fontWeight: 700, textTransform: 'uppercase', letterSpacing: 2 }}
                             onClick={() => handleDeleteReview(r.id)}
                         >
                             Delete
                         </button>
                     </div>
                     <StarRating value={r.rating} readOnly size={16} />
-                    <p style={{ color: '#bbb', fontSize: 14, lineHeight: 1.6, margin: '8px 0 0' }}>
+                    <p style={{ color: '#bbb', fontSize: 14, fontWeight: 400, lineHeight: 1.6, margin: '8px 0 0', fontFamily: "'Inter', sans-serif" }}>
                         {r.text}
                     </p>
-                    <span style={{ color: '#555', fontSize: 11, marginTop: 8, display: 'block' }}>
+                    <span style={{ color: '#555', fontSize: 11, fontFamily: "'Inter', sans-serif", marginTop: 8, display: 'block' }}>
                         {new Date(r.createdAt).toLocaleDateString()}
                     </span>
                 </div>

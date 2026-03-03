@@ -35,7 +35,7 @@ export default function StarRating({
                         style={{
                             ...(readOnly ? starReadonly : starBase),
                             fontSize: size,
-                            color: filled ? '#e9a840' : '#333',
+                            color: filled ? '#FFB800' : '#333',
                             transform: !readOnly && hover === star ? 'scale(1.2)' : 'scale(1)',
                         }}
                         onClick={() => !readOnly && onChange?.(star)}
