@@ -627,22 +627,29 @@ export default function ProfilePage() {
             {/* ── Content ── */}
             <div className="profile-content" style={contentStyle}>
                 <div className="profile-tabs" style={tabRow}>
-                    {tabs.map((t) => (
-                        <button
-                            key={t.id}
-                            className="profile-tab"
-                            style={tab === t.id ? tabActive : tabBase}
-                            onClick={() => setTab(t.id)}
-                            onMouseEnter={(e) => {
-                                if (tab !== t.id) e.target.style.color = '#aaa';
-                            }}
-                            onMouseLeave={(e) => {
-                                if (tab !== t.id) e.target.style.color = '#555';
-                            }}
-                        >
-                            {t.label} ({t.count})
-                        </button>
-                    ))}
+                    {tabs.map((t) => {
+                        const isActive = tab === t.id;
+                        return (
+                            <button
+                                key={t.id}
+                                className="profile-tab"
+                                style={{
+                                    ...tabBase,
+                                    color: isActive ? '#FFB800' : '#555',
+                                    borderBottomColor: isActive ? '#FFB800' : 'transparent',
+                                }}
+                                onClick={() => setTab(t.id)}
+                                onMouseEnter={(e) => {
+                                    if (!isActive) e.target.style.color = '#aaa';
+                                }}
+                                onMouseLeave={(e) => {
+                                    if (!isActive) e.target.style.color = '#555';
+                                }}
+                            >
+                                {t.label} ({t.count})
+                            </button>
+                        );
+                    })}
                 </div>
 
                 {/* Sort bar */}

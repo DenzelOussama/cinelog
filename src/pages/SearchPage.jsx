@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { searchMovies, getDiscover, getTrending, IMG_BASE } from '../api/tmdb';
+import { searchMovies, getDiscover, getPopular, getTrending, IMG_BASE } from '../api/tmdb';
 import MovieCard from '../components/MovieCard';
 
 /* ── Genre filter definitions ── */
 const GENRES = [
-    { id: null, label: 'All' },
+    { id: 'all', label: 'All' },
     { id: 28, label: 'Action' },
     { id: 35, label: 'Comedy' },
     { id: 27, label: 'Horror' },
@@ -239,18 +239,25 @@ export default function SearchPage() {
             return;
         }
         setGenreLoading(true);
-        getDiscover({ with_genres: activeGenre, sort_by: 'popularity.desc' })
+        const fetchFn = activeGenre === 'all'
+            ? getPopular(1)
+            : getDiscover({ with_genres: activeGenre, sort_by: 'popularity.desc' });
+        fetchFn
             .then((data) => setGenreResults(data.results || []))
             .catch(console.error)
             .finally(() => setGenreLoading(false));
     }, [activeGenre]);
 
+    function handleResetClick() {
+        setActiveGenre(null);
+        setGenreResults([]);
+        setQuery('');
+        setResults([]);
+        setSearched(false);
+    }
+
     function handleGenreClick(genreId) {
-        if (genreId === null) {
-            setActiveGenre(null);
-        } else {
-            setActiveGenre(genreId === activeGenre ? null : genreId);
-        }
+        setActiveGenre(genreId === activeGenre ? null : genreId);
         // Clear text search when switching to genre filter
         setQuery('');
         setResults([]);
@@ -286,11 +293,30 @@ export default function SearchPage() {
 
             {/* Genre filter buttons */}
             <div className="search-genres" style={genreBarStyle}>
+                {/* Reset button */}
+                <button
+                    className="search-genre-btn"
+                    style={activeGenre === null && !query && !searched
+                        ? genreBtnActive
+                        : genreBtnBase}
+                    onClick={handleResetClick}
+                    onMouseEnter={(e) => {
+                        if (activeGenre !== null || query || searched) {
+                            e.target.style.background = 'rgba(255,184,0,0.12)';
+                        }
+                    }}
+                    onMouseLeave={(e) => {
+                        if (activeGenre !== null || query || searched) {
+                            e.target.style.background = 'transparent';
+                        }
+                    }}
+                    title="Clear filters"
+                >
+                    ✕
+                </button>
+
                 {GENRES.map((genre) => {
-                    const isActive =
-                        genre.id === null
-                            ? activeGenre === null && !query
-                            : activeGenre === genre.id;
+                    const isActive = activeGenre === genre.id;
                     return (
                         <button
                             key={genre.label}

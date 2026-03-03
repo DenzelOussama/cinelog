@@ -19,6 +19,10 @@ export function getTopRated(page = 1) {
     return request('/movie/top_rated', { page });
 }
 
+export function getPopular(page = 1) {
+    return request('/movie/popular', { page });
+}
+
 export function getDiscover(params = {}) {
     return request('/discover/movie', params);
 }

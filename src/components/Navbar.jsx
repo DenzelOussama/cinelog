@@ -32,20 +32,22 @@ const navBase = {
     justifyContent: 'space-between',
     padding: '0 32px',
     zIndex: 100,
-    transition: 'background 0.3s, border-color 0.3s',
+    transition: 'background 0.4s ease, border-color 0.4s ease, backdrop-filter 0.4s ease',
 };
 
 const navDefault = {
     ...navBase,
-    background: 'rgba(5,5,5,0.85)',
+    background: 'rgba(5, 5, 5, 0.75)',
     backdropFilter: 'blur(12px)',
-    borderBottom: '1px solid #1a1a1a',
+    WebkitBackdropFilter: 'blur(12px)',
+    borderBottom: '1px solid rgba(255, 184, 0, 0.15)',
 };
 
 const navTransparent = {
     ...navBase,
     background: 'transparent',
     backdropFilter: 'none',
+    WebkitBackdropFilter: 'none',
     borderBottom: '1px solid transparent',
 };
 
@@ -198,11 +200,22 @@ export default function Navbar() {
     const { logout } = useAuth();
     const { pathname } = useLocation();
     const [isOpen, setIsOpen] = useState(false);
+    const [scrolled, setScrolled] = useState(false);
     const [isMobile, setIsMobile] = useState(
         typeof window !== 'undefined' ? window.innerWidth <= MOBILE_BP : false
     );
 
     const isHome = pathname === '/' || (!pathname.startsWith('/search') && !pathname.startsWith('/profile') && !pathname.startsWith('/login') && !pathname.startsWith('/movie'));
+
+    // Scroll listener for homepage transparent → glassy transition
+    useEffect(() => {
+        function handleScroll() {
+            setScrolled(window.scrollY > 50);
+        }
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        handleScroll(); // set initial state
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     const links = [
         { to: '/', label: 'Home' },
@@ -246,7 +259,7 @@ export default function Navbar() {
         <>
             <nav
                 className="cinelog-nav"
-                style={isHome && !isOpen ? navTransparent : navDefault}
+                style={isHome && !isOpen && !scrolled ? navTransparent : navDefault}
             >
                 <Link to="/" className="cinelog-nav-logo" style={logoStyle}>
                     CINELOG
