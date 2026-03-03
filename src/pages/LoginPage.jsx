@@ -1,22 +1,46 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { getTrending, IMG_BASE } from '../api/tmdb';
 
 const pageStyle = {
+    position: 'relative',
     minHeight: '100vh',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     background: '#050505',
     fontFamily: "'Inter', sans-serif",
+    overflow: 'hidden',
+};
+
+/* ── Poster background styles ── */
+const posterGridStyle = {
+    position: 'absolute',
+    inset: 0,
+    display: 'flex',
+    gap: '12px',
+    padding: '0 12px',
+    zIndex: 0,
+    overflow: 'hidden',
+};
+
+const posterOverlayStyle = {
+    position: 'absolute',
+    inset: 0,
+    background: 'radial-gradient(ellipse at center, rgba(5,5,5,0.75) 0%, rgba(5,5,5,0.92) 100%)',
+    zIndex: 1,
 };
 
 const cardStyle = {
+    position: 'relative',
+    zIndex: 2,
     width: 400,
     maxWidth: '90vw',
-    background: '#0e0e0e',
+    background: 'rgba(14,14,14,0.92)',
+    backdropFilter: 'blur(20px)',
     borderRadius: 16,
-    border: '1px solid #1e1e1e',
+    border: '1px solid rgba(255,255,255,0.08)',
     padding: '48px 40px',
 };
 
@@ -141,6 +165,89 @@ const errorStyle = {
     marginBottom: 12,
 };
 
+/* ── Keyframes injected once ── */
+const KEYFRAMES_ID = 'login-poster-keyframes';
+if (typeof document !== 'undefined' && !document.getElementById(KEYFRAMES_ID)) {
+    const style = document.createElement('style');
+    style.id = KEYFRAMES_ID;
+    style.textContent = `
+        @keyframes posterScrollUp {
+            0%   { transform: translateY(0); }
+            100% { transform: translateY(-50%); }
+        }
+        @keyframes posterScrollDown {
+            0%   { transform: translateY(-50%); }
+            100% { transform: translateY(0); }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+/* ── Poster Background Component ── */
+function PosterBackground() {
+    const [posters, setPosters] = useState([]);
+
+    useEffect(() => {
+        getTrending(1)
+            .then((data) => {
+                const movies = (data.results || [])
+                    .filter((m) => m.poster_path)
+                    .slice(0, 12);
+                setPosters(movies.map((m) => `${IMG_BASE}/w342${m.poster_path}`));
+            })
+            .catch(() => { });
+    }, []);
+
+    if (posters.length === 0) return null;
+
+    // Split posters into 4 columns of 3
+    const cols = [0, 1, 2, 3].map((i) => posters.slice(i * 3, i * 3 + 3));
+
+    return (
+        <div style={posterGridStyle}>
+            {cols.map((col, colIdx) => {
+                const goesUp = colIdx % 2 === 0;
+                // Double the images for seamless infinite scroll
+                const doubled = [...col, ...col, ...col, ...col];
+                const speed = 80 + colIdx * 5; // slightly different speeds
+                return (
+                    <div
+                        key={colIdx}
+                        style={{
+                            flex: 1,
+                            overflow: 'hidden',
+                            position: 'relative',
+                        }}
+                    >
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '12px',
+                                animation: `${goesUp ? 'posterScrollUp' : 'posterScrollDown'} ${speed}s linear infinite`,
+                            }}
+                        >
+                            {doubled.map((src, i) => (
+                                <img
+                                    key={i}
+                                    src={src}
+                                    alt=""
+                                    style={{
+                                        width: '100%',
+                                        borderRadius: 8,
+                                        opacity: 0.35,
+                                        display: 'block',
+                                    }}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                );
+            })}
+        </div>
+    );
+}
+
 export default function LoginPage() {
     const [isLogin, setIsLogin] = useState(true);
     const [username, setUsername] = useState('');
@@ -175,6 +282,8 @@ export default function LoginPage() {
 
     return (
         <div style={pageStyle}>
+            <PosterBackground />
+            <div style={posterOverlayStyle} />
             <div style={cardStyle}>
                 <h1 style={logoStyle}>CINELOG</h1>
                 <p style={subtitleStyle}>Your personal movie journal</p>

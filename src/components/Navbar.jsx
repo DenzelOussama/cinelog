@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const navStyle = {
+const navBase = {
     position: 'fixed',
     top: 0,
     left: 0,
@@ -11,10 +11,22 @@ const navStyle = {
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: '0 32px',
+    zIndex: 100,
+    transition: 'background 0.3s, border-color 0.3s',
+};
+
+const navDefault = {
+    ...navBase,
     background: 'rgba(5,5,5,0.85)',
     backdropFilter: 'blur(12px)',
-    zIndex: 100,
     borderBottom: '1px solid #1a1a1a',
+};
+
+const navTransparent = {
+    ...navBase,
+    background: 'transparent',
+    backdropFilter: 'none',
+    borderBottom: '1px solid transparent',
 };
 
 const logoStyle = {
@@ -35,36 +47,32 @@ const linksStyle = {
 const linkBase = {
     fontFamily: "'Inter', sans-serif",
     fontSize: 13,
-    fontWeight: 500,
+    fontWeight: 600,
     textTransform: 'uppercase',
     letterSpacing: 2,
-    color: '#888',
+    color: '#fff',
     textDecoration: 'none',
     padding: '6px 14px',
-    borderRadius: 8,
-    background: 'rgba(255,255,255,0.03)',
-    border: '1px solid rgba(255,255,255,0.06)',
-    transition: 'color 0.2s, background 0.2s, border-color 0.2s',
-    borderBottom: '2px solid transparent',
+    borderRadius: 0,
+    background: 'none',
+    border: 'none',
+    transition: 'color 0.2s',
 };
 
 const linkActive = {
     ...linkBase,
-    color: '#fff',
-    background: 'rgba(255,255,255,0.08)',
-    border: '1px solid rgba(255,255,255,0.1)',
-    borderBottom: '2px solid #FFB800',
+    color: '#FFB800',
 };
 
 const signOutBtn = {
     fontFamily: "'Inter', sans-serif",
     fontSize: 12,
-    fontWeight: 700,
+    fontWeight: 600,
     textTransform: 'uppercase',
     letterSpacing: 2,
-    color: '#666',
+    color: '#fff',
     background: 'none',
-    border: '1px solid #2a2a2a',
+    border: '1px solid rgba(255,255,255,0.3)',
     borderRadius: 8,
     padding: '6px 14px',
     cursor: 'pointer',
@@ -76,6 +84,8 @@ export default function Navbar() {
     const { logout } = useAuth();
     const { pathname } = useLocation();
 
+    const isHome = pathname === '/' || (!pathname.startsWith('/search') && !pathname.startsWith('/profile') && !pathname.startsWith('/login') && !pathname.startsWith('/movie'));
+
     const links = [
         { to: '/', label: 'Home' },
         { to: '/search', label: 'Search' },
@@ -83,7 +93,7 @@ export default function Navbar() {
     ];
 
     return (
-        <nav style={navStyle}>
+        <nav style={isHome ? navTransparent : navDefault}>
             <Link to="/" style={logoStyle}>
                 CINELOG
             </Link>
@@ -98,6 +108,8 @@ export default function Navbar() {
                             key={to}
                             to={to}
                             style={isActive ? linkActive : linkBase}
+                            onMouseEnter={(e) => { if (!isActive) e.target.style.color = '#FFB800'; }}
+                            onMouseLeave={(e) => { if (!isActive) e.target.style.color = '#fff'; }}
                         >
                             {label}
                         </Link>
@@ -107,12 +119,12 @@ export default function Navbar() {
                     style={signOutBtn}
                     onClick={logout}
                     onMouseEnter={(e) => {
-                        e.target.style.color = '#e85454';
-                        e.target.style.borderColor = '#e85454';
+                        e.target.style.color = '#FFB800';
+                        e.target.style.borderColor = '#FFB800';
                     }}
                     onMouseLeave={(e) => {
-                        e.target.style.color = '#666';
-                        e.target.style.borderColor = '#2a2a2a';
+                        e.target.style.color = '#fff';
+                        e.target.style.borderColor = 'rgba(255,255,255,0.3)';
                     }}
                 >
                     Sign out

@@ -240,6 +240,41 @@ textarea {
   transform: translateY(-1px);
 }
 
+/* Hero arrow navigation */
+.hero-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 4;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255, 184, 0, 0.12);
+  border: 1px solid rgba(255, 184, 0, 0.3);
+  color: #fff;
+  font-size: 24px;
+  font-weight: 300;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease, background 0.2s ease;
+}
+
+.hero-arrow:hover {
+  background: rgba(255, 184, 0, 0.25);
+}
+
+.hero-arrow-left {
+  left: 8px;
+}
+
+.hero-arrow-right {
+  right: 32px;
+}
+
 /* Hero pagination dots */
 .hero-dots {
   position: absolute;

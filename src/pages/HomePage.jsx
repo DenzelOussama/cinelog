@@ -28,26 +28,39 @@ const CATEGORIES = [
 
 function HeroSection({ movies }) {
     const [activeIdx, setActiveIdx] = useState(0);
+    const [hovered, setHovered] = useState(false);
     const navigate = useNavigate();
     const timerRef = useRef(null);
 
     const heroMovies = movies.slice(0, 5);
 
-    // Auto-rotate every 6s
-    useEffect(() => {
-        if (heroMovies.length === 0) return;
+    function resetTimer() {
+        clearInterval(timerRef.current);
         timerRef.current = setInterval(() => {
             setActiveIdx((prev) => (prev + 1) % heroMovies.length);
-        }, 6000);
+        }, 5000);
+    }
+
+    // Auto-rotate every 5s
+    useEffect(() => {
+        if (heroMovies.length === 0) return;
+        resetTimer();
         return () => clearInterval(timerRef.current);
     }, [heroMovies.length]);
 
     function goToSlide(idx) {
         setActiveIdx(idx);
-        clearInterval(timerRef.current);
-        timerRef.current = setInterval(() => {
-            setActiveIdx((prev) => (prev + 1) % heroMovies.length);
-        }, 6000);
+        resetTimer();
+    }
+
+    function goLeft() {
+        setActiveIdx((prev) => (prev - 1 + heroMovies.length) % heroMovies.length);
+        resetTimer();
+    }
+
+    function goRight() {
+        setActiveIdx((prev) => (prev + 1) % heroMovies.length);
+        resetTimer();
     }
 
     if (heroMovies.length === 0) {
@@ -55,7 +68,11 @@ function HeroSection({ movies }) {
     }
 
     return (
-        <section className="hero">
+        <section
+            className="hero"
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+        >
             {heroMovies.map((movie, idx) => {
                 const genres = (movie.genre_ids || [])
                     .slice(0, 3)
@@ -113,6 +130,24 @@ function HeroSection({ movies }) {
                     </div>
                 );
             })}
+
+            {/* Arrow navigation */}
+            <button
+                className="hero-arrow hero-arrow-left"
+                style={{ opacity: hovered ? 1 : 0 }}
+                onClick={goLeft}
+                aria-label="Previous slide"
+            >
+                ‹
+            </button>
+            <button
+                className="hero-arrow hero-arrow-right"
+                style={{ opacity: hovered ? 1 : 0 }}
+                onClick={goRight}
+                aria-label="Next slide"
+            >
+                ›
+            </button>
 
             {/* Pagination dots */}
             <div className="hero-dots">
