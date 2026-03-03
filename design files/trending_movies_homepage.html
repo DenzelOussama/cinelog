@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CINE/PHILE — Trending Archive</title>
+    <!-- Google Fonts: Syne -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        syne: ['Syne', 'sans-serif'],
+                    },
+                    colors: {
+                        'noir': '#050505',
+                        'cinema-red': '#E50914',
+                        'cinema-gold': '#FFB800',
+                        'phosphor': '#C1FF72',
+                    },
+                    animation: {
+                        'grain': 'grain 8s steps(10) infinite',
+                        'marquee': 'marquee 40s linear infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        grain: {
+                            '0%, 100%': { transform: 'translate(0, 0)' },
+                            '10%': { transform: 'translate(-5%, -10%)' },
+                            '30%': { transform: 'translate(-15%, 5%)' },
+                            '50%': { transform: 'translate(7%, 9%)' },
+                            '70%': { transform: 'translate(-3%, 11%)' },
+                            '90%': { transform: 'translate(12%, -7%)' },
+                        },
+                        marquee: {
+                            '0%': { transform: 'translateX(0)' },
+                            '100%': { transform: 'translateX(-50%)' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #050505;
+            color: #ffffff;
+            overflow-x: hidden;
+            font-family: 'Syne', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .grain-overlay {
+            position: fixed;
+            top: -150%;
+            left: -150%;
+            width: 400%;
+            height: 400%;
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/7/76/1k_Stop_Sign_Noise.png');
+            opacity: 0.04;
+            pointer-events: none;
+            z-index: 9999;
+            animation: grain 8s steps(10) infinite;
+        }
+
+        .scanline {
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(to right, transparent, rgba(229, 9, 20, 0.2), transparent);
+            position: fixed;
+            z-index: 100;
+            top: 0;
+            pointer-events: none;
+            animation: scan 6s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { top: -10%; }
+            100% { top: 110%; }
+        }
+
+        .movie-card {
+            background: rgba(15, 15, 15, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: rgba(229, 9, 20, 0.5);
+            box-shadow: 0 20px 40px -20px rgba(229, 9, 20, 0.3);
+        }
+
+        .hyper-border::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            background: conic-gradient(from 0deg, transparent 0%, transparent 40%, #E50914 50%, transparent 60%, transparent 100%);
+            z-index: -1;
+            animation: rotate 4s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .movie-card:hover .hyper-border::before {
+            opacity: 1;
+        }
+
+        @keyframes rotate {
+            100% { transform: rotate(360deg); }
+        }
+
+        .glass-nav {
+            background: rgba(5, 5, 5, 0.7);
+            backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        ::selection {
+            background: #E50914;
+            color: white;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 2px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #E50914;
+        }
+
+        .hero-gradient {
+            background: linear-gradient(0deg, #050505 0%, rgba(5, 5, 5, 0) 50%, rgba(5, 5, 5, 0.8) 100%);
+        }
+
+        .poster-glow {
+            filter: drop-shadow(0 0 20px rgba(229, 9, 20, 0.15));
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col" x-data="{ 
+    searchOpen: false, 
+    activeSlide: 0,
+    movies: [
+        { id: 1, title: 'DUNE: PART TWO', year: '2024', genre: 'Sci-Fi', rating: '9.2', img: 'https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?auto=format&fit=crop&q=80&w=1000', desc: 'Paul Atreides unites with Chani and the Fremen while on a warpath of revenge.' },
+        { id: 2, title: 'THE BATMAN', year: '2022', genre: 'Crime', rating: '8.5', img: 'https://images.unsplash.com/photo-1531259683007-016a7b628fc3?auto=format&fit=crop&q=80&w=1000', desc: 'When a sadistic serial killer begins murdering key political figures in Gotham.' },
+        { id: 3, title: 'OPPENHEIMER', year: '2023', genre: 'Drama', rating: '8.9', img: 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?auto=format&fit=crop&q=80&w=1000', desc: 'The story of American scientist J. Robert Oppenheimer and his role in the atomic bomb.' },
+        { id: 4, title: 'BLADE RUNNER 2049', year: '2017', genre: 'Sci-Fi', rating: '8.0', img: 'https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?auto=format&fit=crop&q=80&w=1000', desc: 'A young Blade Runner\'s discovery of a long-buried secret leads him to track down Rick Deckard.' },
+        { id: 5, title: 'INTERSTELLAR', year: '2014', genre: 'Adventure', rating: '8.7', img: 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&q=80&w=1000', desc: 'When Earth becomes uninhabitable, a farmer and ex-NASA pilot is tasked to pilot a spacecraft.' },
+        { id: 6, title: 'PARASITE', year: '2019', genre: 'Thriller', rating: '8.5', img: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=1000', desc: 'Greed and class discrimination threaten the newly formed symbiotic relationship between families.' }
+    ]
+}">
+
+    <div class="grain-overlay"></div>
+    <div class="scanline"></div>
+
+    <!-- GLOBAL NAVIGATION -->
+    <nav class="glass-nav sticky top-0 z-[100] px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center space-x-12">
+            <a href="#" class="group">
+                <h1 class="text-2xl font-black tracking-tighter flex items-center">
+                    CINE<span class="text-cinema-red group-hover:text-cinema-gold transition-colors">PHILE.</span>
+                </h1>
+            </a>
+            <div class="hidden md:flex space-x-8 text-[10px] font-bold uppercase tracking-[0.3em] text-white/50">
+                <a href="#" class="hover:text-white transition-colors text-white border-b border-cinema-red pb-1">Archive</a>
+                <a href="#" class="hover:text-white transition-colors">Directors</a>
+                <a href="#" class="hover:text-white transition-colors">Festivals</a>
+                <a href="#" class="hover:text-white transition-colors">Studio</a>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-6">
+            <div class="relative flex items-center">
+                <input type="text" 
+                       x-show="searchOpen" 
+                       x-transition:enter="transition ease-out duration-300"
+                       x-transition:enter-start="opacity-0 w-0"
+                       x-transition:enter-end="opacity-100 w-64"
+                       placeholder="SEARCH THE VAULT..." 
+                       class="bg-white/5 border border-white/10 rounded-full px-6 py-2 text-xs font-bold tracking-widest focus:outline-none focus:border-cinema-red/50 mr-4">
+                <button @click="searchOpen = !searchOpen" class="hover:text-cinema-red transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </button>
+            </div>
+            <a href="#" class="hidden sm:block">
+                <div class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:border-cinema-red transition-all group overflow-hidden">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="Profile" class="w-full h-full object-cover">
+                </div>
+            </a>
+        </div>
+    </nav>
+
+    <main class="flex-grow">
+        <!-- HERO CAROUSEL -->
+        <section class="relative h-[80vh] w-full overflow-hidden bg-noir border-b border-white/5">
+            <template x-for="(movie, index) in movies.slice(0, 3)" :key="index">
+                <div x-show="activeSlide === index" 
+                     x-transition:enter="transition ease-out duration-1000"
+                     x-transition:enter-start="opacity-0 scale-110"
+                     x-transition:enter-end="opacity-100 scale-100"
+                     class="absolute inset-0">
+                    
+                    <img :src="movie.img" class="w-full h-full object-cover opacity-50 grayscale hover:grayscale-0 transition-all duration-1000">
+                    <div class="absolute inset-0 hero-gradient"></div>
+                    
+                    <div class="absolute inset-0 flex flex-col justify-end p-8 md:p-20">
+                        <div class="max-w-4xl space-y-6">
+                            <div class="flex items-center space-x-3">
+                                <span class="bg-cinema-red text-white text-[10px] font-black px-3 py-1 uppercase tracking-widest">Trending Now</span>
+                                <span class="text-cinema-gold text-[10px] font-black uppercase tracking-widest flex items-center">
+                                    <span class="w-2 h-2 bg-cinema-gold rounded-full mr-2 animate-pulse"></span> PREMIERE ACCESS
+                                </span>
+                            </div>
+                            <h2 x-text="movie.title" class="text-6xl md:text-9xl font-black tracking-tighter leading-none"></h2>
+                            <p x-text="movie.desc" class="text-lg text-white/60 font-medium max-w-xl leading-relaxed"></p>
+                            
+                            <div class="flex flex-wrap gap-4 pt-4">
+                                <button class="bg-white text-noir font-black px-10 py-4 rounded-full uppercase tracking-widest text-xs hover:bg-cinema-red hover:text-white transition-all transform hover:scale-105 active:scale-95">
+                                    Watch Trailer
+                                </button>
+                                <button class="border border-white/20 backdrop-blur-md text-white font-black px-10 py-4 rounded-full uppercase tracking-widest text-xs hover:bg-white/10 transition-all">
+                                    Add to Library
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <!-- Slide Controls -->
+            <div class="absolute bottom-10 right-10 flex space-x-4 z-50">
+                <template x-for="(movie, index) in movies.slice(0, 3)" :key="index">
+                    <button @click="activeSlide = index" 
+                            :class="activeSlide === index ? 'w-12 bg-cinema-red' : 'w-3 bg-white/20 hover:bg-white/40'"
+                            class="h-1 transition-all duration-500 rounded-full"></button>
+                </template>
+            </div>
+        </section>
+
+        <!-- HORIZONTAL CATEGORIES MARQUEE -->
+        <section class="py-12 border-b border-white/5 overflow-hidden">
+            <div class="flex animate-marquee whitespace-nowrap">
+                <template x-for="i in 10">
+                    <div class="flex items-center space-x-12 px-6">
+                        <span class="text-4xl font-black text-white/5 uppercase italic tracking-tighter">New Arrivals</span>
+                        <span class="text-4xl font-black text-cinema-red/20 uppercase italic tracking-tighter">Directors Cut</span>
+                        <span class="text-4xl font-black text-white/5 uppercase italic tracking-tighter">Underground</span>
+                        <span class="text-4xl font-black text-cinema-gold/20 uppercase italic tracking-tighter">Cinema Verite</span>
+                    </div>
+                </template>
+            </div>
+        </section>
+
+        <!-- MAIN MASONRY GRID -->
+        <section class="p-6 md:p-12">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+                <div>
+                    <h3 class="text-4xl font-black tracking-tighter uppercase mb-2">Curated Archive</h3>
+                    <div class="flex items-center space-x-4">
+                        <span class="h-[1px] w-12 bg-cinema-red"></span>
+                        <p class="text-[10px] uppercase tracking-[0.4em] font-semibold text-white/40">Sorted by Visual Impact & Critical Acclaim</p>
+                    </div>
+                </div>
+                
+                <div class="flex space-x-2 custom-scrollbar overflow-x-auto pb-4 md:pb-0">
+                    <button class="px-6 py-2 rounded-full border border-cinema-red text-cinema-red text-[10px] font-black uppercase tracking-widest whitespace-nowrap">All Titles</button>
+                    <button class="px-6 py-2 rounded-full border border-white/10 text-white/40 hover:text-white transition-colors text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Cinematography</button>
+                    <button class="px-6 py-2 rounded-full border border-white/10 text-white/40 hover:text-white transition-colors text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Noir</button>
+                    <button class="px-6 py-2 rounded-full border border-white/10 text-white/40 hover:text-white transition-colors text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Avant-Garde</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                <template x-for="movie in [...movies, ...movies]" :key="Math.random()">
+                    <div class="movie-card rounded-2xl group cursor-pointer">
+                        <div class="hyper-border"></div>
+                        <div class="relative aspect-[2/3] overflow-hidden">
+                            <img :src="movie.img" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                            <div class="absolute inset-0 bg-gradient-to-t from-noir via-transparent to-transparent opacity-80 group-hover:opacity-40 transition-opacity"></div>
+                            
+                            <!-- Badges -->
+                            <div class="absolute top-4 left-4 flex flex-col space-y-2">
+                                <span class="bg-phosphor text-noir text-[8px] font-black px-2 py-1 rounded-sm uppercase tracking-tighter" x-text="movie.year"></span>
+                                <span class="bg-white/10 backdrop-blur-md text-white text-[8px] font-black px-2 py-1 rounded-sm uppercase tracking-tighter" x-text="movie.genre"></span>
+                            </div>
+
+                            <div class="absolute top-4 right-4">
+                                <div class="bg-cinema-gold text-noir w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black" x-text="movie.rating"></div>
+                            </div>
+
+                            <!-- Hover Details -->
+                            <div class="absolute inset-x-0 bottom-0 p-6 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                                <h4 class="text-xl font-extrabold tracking-tight mb-2" x-text="movie.title"></h4>
+                                <p class="text-[10px] text-white/60 font-medium leading-relaxed line-clamp-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100" x-text="movie.desc"></p>
+                                
+                                <div class="mt-4 flex items-center space-x-4 opacity-0 group-hover:opacity-100 transition-all duration-500 delay-200">
+                                    <button class="flex-grow bg-white text-noir text-[10px] font-black py-2 rounded-lg uppercase tracking-widest hover:bg-cinema-red hover:text-white transition-colors">Details</button>
+                                    <button class="w-10 h-10 border border-white/20 rounded-lg flex items-center justify-center hover:bg-white/10 transition-colors">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <!-- LOAD MORE ACTION -->
+            <div class="mt-20 flex flex-col items-center">
+                <button class="group relative px-12 py-6">
+                    <div class="absolute inset-0 border border-white/10 rounded-full group-hover:border-cinema-red transition-all scale-100 group-hover:scale-105"></div>
+                    <span class="relative text-[10px] font-black uppercase tracking-[0.5em] text-white/50 group-hover:text-white transition-colors">Expose More Archive</span>
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="mt-auto py-12 px-8 md:px-20 border-t border-white/5 bg-noir relative overflow-hidden">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-12 relative z-10">
+            <div class="md:col-span-2">
+                <h2 class="text-4xl font-black tracking-tighter mb-6">CINE<span class="text-cinema-red">PHILE.</span></h2>
+                <p class="text-white/40 text-sm max-w-sm font-medium leading-relaxed">
+                    A digital sanctum for high-fidelity cinema. Preserving the visual language of the masters while pushing the boundaries of discovery.
+                </p>
+            </div>
+            <div>
+                <h5 class="text-[10px] font-black uppercase tracking-[0.3em] text-white/20 mb-6">Foundation</h5>
+                <ul class="space-y-4 text-[11px] font-bold uppercase tracking-widest text-white/50">
+                    <li><a href="#" class="hover:text-cinema-red transition-colors">Manifesto</a></li>
+                    <li><a href="#" class="hover:text-cinema-red transition-colors">The Vault</a></li>
+                    <li><a href="#" class="hover:text-cinema-red transition-colors">Curation Policy</a></li>
+                </ul>
+            </div>
+            <div>
+                <h5 class="text-[10px] font-black uppercase tracking-[0.3em] text-white/20 mb-6">Connect</h5>
+                <ul class="space-y-4 text-[11px] font-bold uppercase tracking-widest text-white/50">
+                    <li><a href="#" class="hover:text-cinema-gold transition-colors">Instagram</a></li>
+                    <li><a href="#" class="hover:text-cinema-gold transition-colors">Discord Central</a></li>
+                    <li><a href="#" class="hover:text-cinema-gold transition-colors">Archive News</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+            <p class="text-[9px] uppercase tracking-[0.4em] text-white/20 font-bold">
+                © 2024 CINE/PHILE ARCHIVE — ALL RIGHTS TO THE CREATORS
+            </p>
+            <div class="flex items-center space-x-8 text-[9px] uppercase tracking-[0.2em] text-white/40 font-bold">
+                <a href="#" class="hover:text-white">Privacy</a>
+                <a href="#" class="hover:text-white">License</a>
+                <a href="#" class="hover:text-white">Terms</a>
+            </div>
+        </div>
+
+        <!-- Decorative Glow -->
+        <div class="absolute -bottom-20 -left-20 w-96 h-96 bg-cinema-red/5 blur-[120px] pointer-events-none"></div>
+    </footer>
+
+    <!-- SCROLL INDICATOR -->
+    <div class="fixed bottom-8 left-8 flex flex-col items-center space-y-4 z-50 mix-blend-difference">
+        <div class="w-[1px] h-20 bg-white/20 relative">
+            <div class="absolute top-0 left-0 w-full h-1/2 bg-cinema-red animate-pulse-slow"></div>
+        </div>
+        <span class="text-[8px] uppercase tracking-[0.5em] font-bold rotate-90 origin-left translate-x-1">Volume 0.24</span>
+    </div>
+
+    <script>
+        // Hero auto-advance
+        setInterval(() => {
+            const body = document.querySelector('body');
+            const data = body.__x.$data;
+            data.activeSlide = (data.activeSlide + 1) % 3;
+        }, 8000);
+    </script>
+</body>
+</html>

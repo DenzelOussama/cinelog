@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CINE/PHILE — Access the Archive</title>
+    <!-- Google Fonts: Syne -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        syne: ['Syne', 'sans-serif'],
+                    },
+                    colors: {
+                        'noir': '#050505',
+                        'cinema-red': '#E50914',
+                        'cinema-gold': '#FFB800',
+                        'phosphor': '#C1FF72',
+                    },
+                    animation: {
+                        'grain': 'grain 8s steps(10) infinite',
+                        'marquee': 'marquee 25s linear infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        grain: {
+                            '0%, 100%': { transform: 'translate(0, 0)' },
+                            '10%': { transform: 'translate(-5%, -10%)' },
+                            '30%': { transform: 'translate(-15%, 5%)' },
+                            '50%': { transform: 'translate(7%, 9%)' },
+                            '70%': { transform: 'translate(-3%, 11%)' },
+                            '90%': { transform: 'translate(12%, -7%)' },
+                        },
+                        marquee: {
+                            '0%': { transform: 'translateY(0)' },
+                            '100%': { transform: 'translateY(-50%)' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #050505;
+            color: #ffffff;
+            overflow-x: hidden;
+            font-family: 'Syne', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* The Grain Overlay */
+        .grain-overlay {
+            position: fixed;
+            top: -150%;
+            left: -150%;
+            width: 400%;
+            height: 400%;
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/7/76/1k_Stop_Sign_Noise.png');
+            opacity: 0.04;
+            pointer-events: none;
+            z-index: 9999;
+            animation: grain 8s steps(10) infinite;
+        }
+
+        .auth-card {
+            background: rgba(15, 15, 15, 0.7);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Hyper-Border: Glowing edge animation */
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: conic-gradient(from 0deg, transparent 0%, transparent 40%, #E50914 50%, transparent 60%, transparent 100%);
+            z-index: -1;
+            animation: rotate 4s linear infinite;
+            opacity: 0.4;
+        }
+
+        @keyframes rotate {
+            100% { transform: rotate(360deg); }
+        }
+
+        .input-field {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .input-field:focus {
+            background: rgba(255, 255, 255, 0.07);
+            border-color: #E50914;
+            box-shadow: 0 0 15px rgba(229, 9, 20, 0.2);
+            outline: none;
+        }
+
+        .btn-primary {
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.96);
+        }
+
+        .vertical-marquee {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            white-space: nowrap;
+        }
+
+        ::selection {
+            background: #E50914;
+            color: white;
+        }
+
+        /* Scanning Line Effect */
+        .scanline {
+            width: 100%;
+            height: 2px;
+            background: rgba(229, 9, 20, 0.1);
+            position: fixed;
+            z-index: 100;
+            top: 0;
+            pointer-events: none;
+            animation: scan 4s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { top: -10%; }
+            100% { top: 110%; }
+        }
+
+        .social-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .social-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body x-data="{ mode: 'signin', loading: false }">
+
+    <div class="grain-overlay"></div>
+    <div class="scanline"></div>
+
+    <main class="min-h-screen w-full flex flex-col md:flex-row items-stretch relative overflow-hidden">
+        
+        <!-- SIDE A: THE SPECTACLE (Desktop Only Visual) -->
+        <section class="hidden md:flex w-2/5 lg:w-3/5 bg-noir relative items-center justify-center p-12 overflow-hidden border-r border-white/5">
+            <!-- Background Elements -->
+            <div class="absolute inset-0 z-0 opacity-40">
+                <img src="https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=2059" alt="Cinematic" class="w-full h-full object-cover grayscale brightness-50">
+                <div class="absolute inset-0 bg-gradient-to-r from-noir via-transparent to-noir"></div>
+            </div>
+
+            <!-- Vertical Scrolling Marquee -->
+            <div class="absolute left-8 top-0 h-[200%] vertical-marquee opacity-20 pointer-events-none select-none">
+                <div class="animate-marquee flex flex-col space-y-24 py-12">
+                    <span class="text-9xl font-extrabold uppercase tracking-tighter">Director's Cut</span>
+                    <span class="text-9xl font-extrabold uppercase tracking-tighter text-cinema-red">Now Showing</span>
+                    <span class="text-9xl font-extrabold uppercase tracking-tighter">Cinematic Archive</span>
+                    <span class="text-9xl font-extrabold uppercase tracking-tighter">Premium Access</span>
+                    <!-- Repeat for loop -->
+                    <span class="text-9xl font-extrabold uppercase tracking-tighter">Director's Cut</span>
+                    <span class="text-9xl font-extrabold uppercase tracking-tighter text-cinema-red">Now Showing</span>
+                </div>
+            </div>
+
+            <!-- Floating Hero Element -->
+            <div class="relative z-10 animate-float">
+                <div class="text-[12vw] font-black leading-none tracking-tighter opacity-80 mix-blend-difference">
+                    CINE<br/><span class="text-cinema-red">PHILE.</span>
+                </div>
+                <div class="mt-6 flex items-center space-x-4">
+                    <span class="h-[1px] w-12 bg-cinema-red"></span>
+                    <p class="text-xs uppercase tracking-[0.4em] font-semibold text-white/60">EST. 1895 / ACCESS THE VAULT</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SIDE B: THE GATEWAY (Auth Card) -->
+        <section class="flex-grow flex items-center justify-center p-6 sm:p-12 lg:p-24 relative z-20">
+            <!-- Mobile Logo (Small Viewports) -->
+            <div class="md:hidden absolute top-12 left-12">
+                <h1 class="text-3xl font-black tracking-tighter">C/P.</h1>
+            </div>
+
+            <div class="w-full max-w-md auth-card p-10 md:p-12 rounded-3xl" 
+                 x-transition:enter="transition ease-out duration-500"
+                 x-transition:enter-start="opacity-0 translate-y-12"
+                 x-transition:enter-end="opacity-100 translate-y-0">
+                
+                <!-- Toggle Header -->
+                <div class="flex items-center justify-between mb-12">
+                    <button @click="mode = 'signin'" 
+                            :class="mode === 'signin' ? 'text-white' : 'text-white/30 hover:text-white/50'"
+                            class="text-3xl font-extrabold tracking-tight transition-colors">
+                        Sign In
+                    </button>
+                    <div class="h-6 w-[2px] bg-white/10"></div>
+                    <button @click="mode = 'signup'" 
+                            :class="mode === 'signup' ? 'text-white' : 'text-white/30 hover:text-white/50'"
+                            class="text-3xl font-extrabold tracking-tight transition-colors">
+                        Register
+                    </button>
+                </div>
+
+                <!-- Form Section -->
+                <form @submit.prevent="loading = true; setTimeout(() => loading = false, 2000)" class="space-y-6">
+                    
+                    <!-- Sign Up Only: Name -->
+                    <div x-show="mode === 'signup'" x-collapse x-transition>
+                        <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-white/40 mb-2">Full Name</label>
+                        <input type="text" placeholder="John Wick" 
+                               class="input-field w-full px-6 py-4 rounded-xl text-white placeholder:text-white/10">
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-white/40 mb-2">Archive Email</label>
+                        <input type="email" required placeholder="name@domain.com" 
+                               class="input-field w-full px-6 py-4 rounded-xl text-white placeholder:text-white/10">
+                    </div>
+
+                    <!-- Password -->
+                    <div class="relative">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-white/40">Password</label>
+                            <a href="#" class="text-[10px] uppercase tracking-[0.1em] font-bold text-cinema-red hover:text-white transition-colors">Forgot?</a>
+                        </div>
+                        <input type="password" required placeholder="••••••••" 
+                               class="input-field w-full px-6 py-4 rounded-xl text-white placeholder:text-white/10">
+                    </div>
+
+                    <!-- CTA Button -->
+                    <button type="submit" 
+                            class="btn-primary w-full bg-white text-noir font-black py-4 rounded-xl uppercase tracking-widest text-sm flex items-center justify-center space-x-3 hover:bg-cinema-red hover:text-white transition-all">
+                        <template x-if="!loading">
+                            <span x-text="mode === 'signin' ? 'Enter the Vault' : 'Create Access'"></span>
+                        </template>
+                        <template x-if="loading">
+                            <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </template>
+                    </button>
+
+                    <!-- Divider -->
+                    <div class="relative flex items-center py-4">
+                        <div class="flex-grow border-t border-white/10"></div>
+                        <span class="flex-shrink mx-4 text-[10px] font-bold text-white/20 uppercase tracking-[0.3em]">Quick Access</span>
+                        <div class="flex-grow border-t border-white/10"></div>
+                    </div>
+
+                    <!-- Social Buttons -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <button type="button" class="social-btn flex items-center justify-center py-3.5 rounded-xl group">
+                            <svg class="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.908 3.152-1.928 4.176-1.024 1.024-2.4 1.84-4.8 1.84-4.8 0-8.76-3.888-8.76-8.76s3.96-8.76 8.76-8.76c2.6 0 4.608 1.024 6.008 2.336L22.12 2.52C19.78.36 16.56-1 12.48-1 5.36-1 0 4.36 0 11.48s5.36 12.48 12.48 12.48c4.08 0 7.152-1.344 9.512-3.816 2.4-2.4 3.16-5.744 3.16-8.48 0-.824-.072-1.576-.184-2.256h-12.496z"/>
+                            </svg>
+                        </button>
+                        <button type="button" class="social-btn flex items-center justify-center py-3.5 rounded-xl group">
+                            <svg class="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2.002-.156-3.312 1.078-4.303 1.078zm2.522-4.57c.883-1.053 1.469-2.522 1.3-4.001-1.287.052-2.847.857-3.766 1.91-.832.935-1.559 2.428-1.365 3.87 1.43.117 2.916-.767 3.831-1.779z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Footer Text -->
+                <div class="mt-12 text-center">
+                    <p class="text-[9px] uppercase tracking-[0.4em] text-white/20 font-bold leading-relaxed">
+                        By entering, you agree to our <br/> 
+                        <a href="#" class="text-white/40 hover:text-white transition-colors underline decoration-cinema-red/40">Terms of Cinematic Service</a>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Decorative elements for depth -->
+        <div class="absolute bottom-0 right-0 w-64 h-64 bg-cinema-red opacity-10 blur-[120px] pointer-events-none"></div>
+        <div class="absolute top-0 left-1/2 w-96 h-96 bg-cinema-gold opacity-5 blur-[150px] pointer-events-none"></div>
+
+    </main>
+
+    <!-- Scroll Indicator (Visual Flair) -->
+    <div class="fixed bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center space-y-2 opacity-50 md:hidden">
+        <span class="text-[8px] uppercase tracking-[0.5em] font-bold">Scroll</span>
+        <div class="w-[1px] h-8 bg-white/30 relative">
+            <div class="absolute top-0 left-0 w-full h-1/2 bg-cinema-red animate-pulse"></div>
+        </div>
+    </div>
+
+    <script>
+        // Subtle Mouse Follow Glow
+        document.addEventListener('mousemove', (e) => {
+            const x = e.clientX;
+            const y = e.clientY;
+            const scan = document.querySelector('.scanline');
+            // scan.style.boxShadow = `0 ${y}px 100px rgba(229, 9, 20, 0.05)`;
+        });
+    </script>
+</body>
+</html>
