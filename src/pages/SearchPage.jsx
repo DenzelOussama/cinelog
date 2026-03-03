@@ -64,9 +64,13 @@ const inputStyle = {
 
 const genreBarStyle = {
     display: 'flex',
-    flexWrap: 'wrap',
+    flexWrap: 'nowrap',
+    overflowX: 'auto',
     gap: 10,
     marginBottom: 36,
+    scrollbarWidth: 'none',
+    msOverflowStyle: 'none',
+    WebkitOverflowScrolling: 'touch',
 };
 
 const genreBtnBase = {
@@ -82,6 +86,8 @@ const genreBtnBase = {
     border: '1px solid #FFB800',
     background: 'transparent',
     color: '#FFB800',
+    flexShrink: 0,
+    whiteSpace: 'nowrap',
 };
 
 const genreBtnActive = {
@@ -192,7 +198,7 @@ function EmptyBackground() {
             )}
             <div style={emptyOverlayStyle} />
             <div style={emptyTextWrap}>
-                <h2 style={emptyTitleStyle}>What Will You Discover?</h2>
+                <h2 className="search-empty-title" style={emptyTitleStyle}>What Will You Discover?</h2>
                 <p style={emptySubStyle}>Search for a movie or pick a genre below</p>
             </div>
         </div>
@@ -256,12 +262,13 @@ export default function SearchPage() {
     const moviesToShow = query && searched ? results : genreResults;
 
     return (
-        <div style={pageStyle}>
-            <h1 style={headerStyle}>Search the Vault</h1>
+        <div className="search-page" style={pageStyle}>
+            <h1 className="search-header" style={headerStyle}>Search the Vault</h1>
 
             <div style={inputWrap}>
                 <span style={searchIcon}>🔍</span>
                 <input
+                    className="search-input"
                     style={inputStyle}
                     type="text"
                     placeholder="Search for a movie..."
@@ -278,7 +285,7 @@ export default function SearchPage() {
             </div>
 
             {/* Genre filter buttons */}
-            <div style={genreBarStyle}>
+            <div className="search-genres" style={genreBarStyle}>
                 {GENRES.map((genre) => {
                     const isActive =
                         genre.id === null
@@ -287,6 +294,7 @@ export default function SearchPage() {
                     return (
                         <button
                             key={genre.label}
+                            className="search-genre-btn"
                             style={isActive ? genreBtnActive : genreBtnBase}
                             onClick={() => handleGenreClick(genre.id)}
                             onMouseEnter={(e) => {
@@ -319,7 +327,7 @@ export default function SearchPage() {
 
             {/* Genre loading skeleton */}
             {genreLoading && (
-                <div style={gridStyle}>
+                <div className="search-grid" style={gridStyle}>
                     {Array.from({ length: 10 }).map((_, i) => (
                         <div
                             key={i}
@@ -336,7 +344,7 @@ export default function SearchPage() {
 
             {/* Results grid */}
             {!genreLoading && moviesToShow.length > 0 && (
-                <div style={gridStyle}>
+                <div className="search-grid" style={gridStyle}>
                     {moviesToShow.map((movie) => (
                         <MovieCard key={movie.id} movie={movie} />
                     ))}

@@ -16,7 +16,6 @@ const topRow = {
     paddingBottom: 36,
 };
 
-/* Left — brand */
 const brandLogo = {
     fontFamily: "'Bebas Neue', sans-serif",
     fontSize: 36,
@@ -34,7 +33,6 @@ const brandTagline = {
     letterSpacing: 0.5,
 };
 
-/* Center — links */
 const linksCol = {
     display: 'flex',
     flexDirection: 'column',
@@ -60,7 +58,6 @@ const linkStyle = {
     transition: 'color 0.2s',
 };
 
-/* Right — TMDB */
 const tmdbCol = {
     display: 'flex',
     flexDirection: 'column',
@@ -81,7 +78,6 @@ const tmdbLogo = {
     transition: 'opacity 0.2s',
 };
 
-/* Bottom bar */
 const bottomBar = {
     borderTop: '1px solid #1a1a1a',
     padding: '20px 0',
@@ -94,8 +90,8 @@ const bottomBar = {
 
 export default function Footer() {
     return (
-        <footer style={footerStyle}>
-            <div style={topRow}>
+        <footer className="cinelog-footer" style={footerStyle}>
+            <div className="cinelog-footer-top" style={topRow}>
                 {/* Left — Brand */}
                 <div>
                     <div style={brandLogo}>CINELOG</div>
@@ -103,7 +99,7 @@ export default function Footer() {
                 </div>
 
                 {/* Center — Navigation */}
-                <div style={linksCol}>
+                <div className="cinelog-footer-links" style={linksCol}>
                     <div style={linksTitle}>Navigate</div>
                     {[
                         { to: '/', label: 'Home' },
@@ -123,7 +119,7 @@ export default function Footer() {
                 </div>
 
                 {/* Right — TMDB */}
-                <div style={tmdbCol}>
+                <div className="cinelog-footer-tmdb" style={tmdbCol}>
                     <span style={tmdbText}>Powered by</span>
                     <a
                         href="https://www.themoviedb.org"
@@ -141,7 +137,6 @@ export default function Footer() {
                 </div>
             </div>
 
-            {/* Bottom copyright */}
             <div style={bottomBar}>
                 © 2025 Cinelog. All rights reserved.
             </div>

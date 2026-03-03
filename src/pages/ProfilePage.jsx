@@ -373,7 +373,7 @@ export default function ProfilePage() {
             );
         }
         return (
-            <div style={gridStyle}>
+            <div className="profile-grid" style={gridStyle}>
                 {list.map((m) => (
                     <div
                         key={m.movieId}
@@ -456,6 +456,7 @@ export default function ProfilePage() {
         return reviews.map((r) => (
             <div
                 key={r.id}
+                className="profile-review-card"
                 style={reviewCard}
                 onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#2a2a2a')}
                 onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#1e1e1e')}
@@ -529,25 +530,25 @@ export default function ProfilePage() {
     return (
         <div style={{ background: '#050505', minHeight: '100vh' }}>
             {/* ── Hero header ── */}
-            <div style={heroStyle}>
+            <div className="profile-hero" style={heroStyle}>
                 <div style={heroGrain} />
-                <div style={heroInner}>
-                    <div style={avatarStyle}>{initial}</div>
+                <div className="profile-hero-inner" style={heroInner}>
+                    <div className="profile-avatar" style={avatarStyle}>{initial}</div>
                     <div style={heroTextCol}>
-                        <h1 style={greetingStyle}>{user?.username}</h1>
+                        <h1 className="profile-greeting" style={greetingStyle}>{user?.username}</h1>
                         <p style={memberSince}>Your personal movie journal</p>
                     </div>
-                    <div style={statsRow}>
+                    <div className="profile-stats" style={statsRow}>
                         <div style={statItem}>
-                            <div style={statNumber}>{watched.length}</div>
+                            <div className="profile-stat-number" style={statNumber}>{watched.length}</div>
                             <div style={statLabel}>Watched</div>
                         </div>
                         <div style={statItem}>
-                            <div style={statNumber}>{watchlist.length}</div>
+                            <div className="profile-stat-number" style={statNumber}>{watchlist.length}</div>
                             <div style={statLabel}>Watchlist</div>
                         </div>
                         <div style={statItem}>
-                            <div style={statNumber}>{reviews.length}</div>
+                            <div className="profile-stat-number" style={statNumber}>{reviews.length}</div>
                             <div style={statLabel}>Reviews</div>
                         </div>
                     </div>
@@ -555,11 +556,12 @@ export default function ProfilePage() {
             </div>
 
             {/* ── Content ── */}
-            <div style={contentStyle}>
-                <div style={tabRow}>
+            <div className="profile-content" style={contentStyle}>
+                <div className="profile-tabs" style={tabRow}>
                     {tabs.map((t) => (
                         <button
                             key={t.id}
+                            className="profile-tab"
                             style={tab === t.id ? tabActive : tabBase}
                             onClick={() => setTab(t.id)}
                             onMouseEnter={(e) => {
