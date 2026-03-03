@@ -283,7 +283,7 @@ export default function MoviePage() {
     return (
         <div>
             {/* ── Backdrop Hero ── */}
-            <div style={backdropWrap}>
+            <div className="movie-backdrop" style={backdropWrap}>
                 {movie.backdrop_path && (
                     <img
                         src={`${IMG_BASE}/original${movie.backdrop_path}`}
@@ -292,16 +292,17 @@ export default function MoviePage() {
                     />
                 )}
                 <div style={gradient} />
-                <div style={heroContent}>
+                <div className="movie-hero" style={heroContent}>
                     {movie.poster_path && (
                         <img
+                            className="movie-poster"
                             src={`${IMG_BASE}/w500${movie.poster_path}`}
                             alt={movie.title}
                             style={posterStyle}
                         />
                     )}
-                    <div style={{ flex: 1 }}>
-                        <h1 style={titleStyle}>{movie.title}</h1>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                        <h1 className="movie-title" style={titleStyle}>{movie.title}</h1>
                         <div style={metaRow}>
                             {year && <span>{year}</span>}
                             {runtime && <span>·  {runtime}</span>}
@@ -316,9 +317,10 @@ export default function MoviePage() {
                                 <span key={g.id} style={genreTag}>{g.name}</span>
                             ))}
                         </div>
-                        <p style={overviewStyle}>{movie.overview}</p>
-                        <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
+                        <p className="movie-overview" style={overviewStyle}>{movie.overview}</p>
+                        <div className="movie-actions" style={{ display: 'flex', gap: 12, marginTop: 24 }}>
                             <button
+                                className="movie-action-btn"
                                 style={actionBtn(isWatched)}
                                 onClick={() => handleAddToList('watched')}
                                 disabled={listLoading === 'watched'}
@@ -326,6 +328,7 @@ export default function MoviePage() {
                                 {listLoading === 'watched' ? '…' : isWatched ? '✓ Watched' : '+ Watched'}
                             </button>
                             <button
+                                className="movie-action-btn"
                                 style={actionBtn(isWatchlisted)}
                                 onClick={() => handleAddToList('watchlist')}
                                 disabled={listLoading === 'watchlist'}
@@ -339,9 +342,9 @@ export default function MoviePage() {
 
             {/* ── Cast ── */}
             {cast.length > 0 && (
-                <div style={container}>
+                <div className="movie-section" style={container}>
                     <h2 style={sectionTitle}>Cast</h2>
-                    <div style={{ display: 'flex', gap: 20, overflowX: 'auto', paddingBottom: 8 }}>
+                    <div className="movie-cast-scroll" style={{ display: 'flex', gap: 20, overflowX: 'auto', paddingBottom: 8, scrollbarWidth: 'none' }}>
                         {cast.map((c) => (
                             <div key={c.credit_id} style={castCard}>
                                 {c.profile_path ? (
@@ -364,7 +367,7 @@ export default function MoviePage() {
             )}
 
             {/* ── Write Review ── */}
-            <div style={container}>
+            <div className="movie-section" style={container}>
                 <h2 style={sectionTitle}>Write a Review</h2>
                 <form onSubmit={handleSubmitReview}>
                     <StarRating value={rating} onChange={setRating} size={28} />
@@ -386,7 +389,7 @@ export default function MoviePage() {
 
             {/* ── Reviews List ── */}
             {reviews.length > 0 && (
-                <div style={container}>
+                <div className="movie-section" style={container}>
                     <h2 style={sectionTitle}>Reviews</h2>
                     {reviews.map((r) => (
                         <div key={r.id} style={reviewCard}>
