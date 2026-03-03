@@ -93,6 +93,23 @@ textarea {
   }
 }
 
+@keyframes shimmer {
+  0% {
+    background-position: -400px 0;
+  }
+
+  100% {
+    background-position: 400px 0;
+  }
+}
+
+.skeleton-block {
+  background: linear-gradient(90deg, #141414 25%, #1e1e1e 50%, #141414 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+  border-radius: 8px;
+}
+
 /* ── Selection ── */
 ::selection {
   background: var(--accent);
@@ -382,8 +399,9 @@ textarea {
   width: 180px;
   aspect-ratio: 2/3;
   border-radius: 12px;
-  background: var(--card);
-  animation: pulse 1.5s ease-in-out infinite;
+  background: linear-gradient(90deg, #141414 25%, #1e1e1e 50%, #141414 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
 }
 
 /* ═══════════════════════════════════════════
@@ -775,6 +793,106 @@ textarea {
   /* Login poster grid — fewer columns on mobile */
   .login-poster-grid {
     grid-template-columns: repeat(3, 1fr) !important;
+  }
+
+  /* Actor page */
+  .actor-backdrop {
+    min-height: auto !important;
+  }
+
+  .actor-hero {
+    flex-direction: column !important;
+    align-items: center !important;
+    padding: 80px 16px 40px !important;
+    gap: 28px !important;
+    text-align: center;
+  }
+
+  .actor-photo {
+    width: 80vw !important;
+    max-width: 280px !important;
+    height: auto !important;
+    aspect-ratio: 2/3;
+    align-self: center;
+    box-shadow:
+      0 20px 50px rgba(255, 184, 0, 0.1),
+      0 8px 24px rgba(0, 0, 0, 0.6) !important;
+  }
+
+  .actor-name {
+    font-size: 48px !important;
+    letter-spacing: 3px !important;
+    margin-top: 4px !important;
+    margin-bottom: 20px !important;
+  }
+
+  /* Meta: single centered row with gold pipe separators */
+  .actor-meta {
+    flex-direction: row !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 0 !important;
+    margin-bottom: 28px !important;
+    flex-wrap: wrap;
+  }
+
+  .actor-meta-item {
+    display: inline-flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    padding: 0 14px !important;
+    position: relative;
+  }
+
+  .actor-meta-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 15%;
+    height: 70%;
+    width: 1px;
+    background: rgba(255, 184, 0, 0.35);
+  }
+
+  /* Bio: centered, muted, better line-height */
+  .actor-bio {
+    text-align: center !important;
+    color: #888 !important;
+    line-height: 1.9 !important;
+    font-size: 13px !important;
+    max-width: 100% !important;
+  }
+
+  .actor-bio-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Sections: more vertical padding */
+  .actor-section {
+    padding: 44px 16px !important;
+  }
+
+  .actor-known-item {
+    width: 130px !important;
+  }
+
+  .actor-known-scroll {
+    gap: 12px !important;
+  }
+
+  .actor-known-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .actor-scroll-arrow {
+    display: none !important;
+  }
+
+  .actor-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 14px !important;
   }
 }
 

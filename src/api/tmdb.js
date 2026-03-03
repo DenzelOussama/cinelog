@@ -38,3 +38,11 @@ export function getMovieDetails(id) {
 export function getSimilarMovies(id) {
     return request(`/movie/${id}/similar`);
 }
+
+export function getPersonDetails(id) {
+    return request(`/person/${id}`);
+}
+
+export function getPersonMovieCredits(id) {
+    return request(`/person/${id}/movie_credits`);
+}

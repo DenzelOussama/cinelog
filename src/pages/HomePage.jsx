@@ -67,7 +67,29 @@ function HeroSection({ movies }) {
     }
 
     if (heroMovies.length === 0) {
-        return <div className="hero" />;
+        return (
+            <section className="hero" style={{ background: '#050505' }}>
+                <div className="hero-overlay" />
+                <div className="hero-content">
+                    {/* Title skeleton */}
+                    <div className="skeleton-block" style={{ width: '60%', height: 64, marginBottom: 16 }} />
+                    {/* Genre tags skeleton */}
+                    <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+                        <div className="skeleton-block" style={{ width: 72, height: 26, borderRadius: 20 }} />
+                        <div className="skeleton-block" style={{ width: 56, height: 26, borderRadius: 20 }} />
+                        <div className="skeleton-block" style={{ width: 64, height: 26, borderRadius: 20 }} />
+                    </div>
+                    {/* Rating skeleton */}
+                    <div className="skeleton-block" style={{ width: 80, height: 20, marginBottom: 12 }} />
+                    {/* Overview skeleton */}
+                    <div className="skeleton-block" style={{ width: '90%', height: 16, marginBottom: 8 }} />
+                    <div className="skeleton-block" style={{ width: '75%', height: 16, marginBottom: 8 }} />
+                    <div className="skeleton-block" style={{ width: '50%', height: 16, marginBottom: 28 }} />
+                    {/* CTA skeleton */}
+                    <div className="skeleton-block" style={{ width: 160, height: 46, borderRadius: 4 }} />
+                </div>
+            </section>
+        );
     }
 
     return (

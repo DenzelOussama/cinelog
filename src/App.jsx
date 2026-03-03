@@ -7,6 +7,7 @@ import LoginPage from './pages/LoginPage';
 import HomePage from './pages/HomePage';
 import SearchPage from './pages/SearchPage';
 import MoviePage from './pages/MoviePage';
+import ActorPage from './pages/ActorPage';
 import ProfilePage from './pages/ProfilePage';
 import { useAuth } from './context/AuthContext';
 
@@ -42,6 +43,14 @@ function AppLayout() {
           element={
             <ProtectedRoute>
               <MoviePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/actor/:id"
+          element={
+            <ProtectedRoute>
+              <ActorPage />
             </ProtectedRoute>
           }
         />

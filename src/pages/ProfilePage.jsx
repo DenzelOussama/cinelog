@@ -501,12 +501,11 @@ export default function ProfilePage() {
                     {[0, 1, 2].map((i) => (
                         <div
                             key={i}
+                            className="skeleton-block"
                             style={{
                                 flex: '1 1 100%',
                                 height: 120,
                                 borderRadius: 12,
-                                background: '#141414',
-                                animation: 'pulse 1.5s ease-in-out infinite',
                             }}
                         />
                     ))}

@@ -357,11 +357,10 @@ export default function SearchPage() {
                     {Array.from({ length: 10 }).map((_, i) => (
                         <div
                             key={i}
+                            className="skeleton-block"
                             style={{
                                 aspectRatio: '2/3',
                                 borderRadius: 12,
-                                background: '#141414',
-                                animation: 'pulse 1.5s ease-in-out infinite',
                             }}
                         />
                     ))}

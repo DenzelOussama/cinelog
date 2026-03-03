@@ -322,6 +322,7 @@ function timeAgo(dateStr) {
 
 export default function MoviePage() {
     const { id } = useParams();
+    const navigate = useNavigate();
     const { user, refreshUser } = useAuth();
     const toast = useToast();
     const [movie, setMovie] = useState(null);
@@ -421,8 +422,64 @@ export default function MoviePage() {
 
     if (loading) {
         return (
-            <div style={{ ...container, paddingTop: 120, textAlign: 'center', color: '#666' }}>
-                Loading movie…
+            <div>
+                {/* Backdrop skeleton */}
+                <div className="movie-backdrop" style={{ ...backdropWrap, background: '#0a0a0a' }}>
+                    <div style={gradient} />
+                    <div className="movie-hero" style={heroContent}>
+                        {/* Poster skeleton */}
+                        <div
+                            className="movie-poster skeleton-block"
+                            style={{ width: 260, height: 390, borderRadius: 14, flexShrink: 0 }}
+                        />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                            {/* Title skeleton */}
+                            <div className="skeleton-block" style={{ width: '70%', height: 48, marginBottom: 16 }} />
+                            {/* Meta row skeleton */}
+                            <div style={{ display: 'flex', gap: 16, marginBottom: 20 }}>
+                                <div className="skeleton-block" style={{ width: 50, height: 16 }} />
+                                <div className="skeleton-block" style={{ width: 70, height: 16 }} />
+                                <div className="skeleton-block" style={{ width: 60, height: 16 }} />
+                            </div>
+                            {/* Genre tags skeleton */}
+                            <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+                                <div className="skeleton-block" style={{ width: 72, height: 28, borderRadius: 20 }} />
+                                <div className="skeleton-block" style={{ width: 56, height: 28, borderRadius: 20 }} />
+                                <div className="skeleton-block" style={{ width: 80, height: 28, borderRadius: 20 }} />
+                            </div>
+                            {/* Overview skeleton */}
+                            <div className="skeleton-block" style={{ width: '100%', height: 14, marginBottom: 8, maxWidth: 600 }} />
+                            <div className="skeleton-block" style={{ width: '85%', height: 14, marginBottom: 8, maxWidth: 510 }} />
+                            <div className="skeleton-block" style={{ width: '60%', height: 14, marginBottom: 24, maxWidth: 360 }} />
+                            {/* Action buttons skeleton */}
+                            <div style={{ display: 'flex', gap: 12 }}>
+                                <div className="skeleton-block" style={{ width: 140, height: 42, borderRadius: 10 }} />
+                                <div className="skeleton-block" style={{ width: 120, height: 42, borderRadius: 10 }} />
+                                <div className="skeleton-block" style={{ width: 120, height: 42, borderRadius: 10 }} />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Cast skeleton */}
+                <div className="movie-section" style={container}>
+                    <div className="skeleton-block" style={{ width: 100, height: 28, marginBottom: 20 }} />
+                    <div style={{ display: 'flex', gap: 20, overflowX: 'auto' }}>
+                        {Array.from({ length: 8 }).map((_, i) => (
+                            <div key={i} style={{ ...castCard, flexShrink: 0 }}>
+                                <div className="skeleton-block" style={{ width: 90, height: 90, borderRadius: '50%', margin: '0 auto' }} />
+                                <div className="skeleton-block" style={{ width: 70, height: 12, marginTop: 10, margin: '10px auto 0' }} />
+                                <div className="skeleton-block" style={{ width: 50, height: 10, marginTop: 4, margin: '4px auto 0' }} />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Review section skeleton */}
+                <div className="movie-section" style={container}>
+                    <div className="skeleton-block" style={{ width: 180, height: 28, marginBottom: 20 }} />
+                    <div className="skeleton-block" style={{ width: '100%', height: 120, borderRadius: 12 }} />
+                </div>
             </div>
         );
     }
@@ -536,7 +593,17 @@ export default function MoviePage() {
                     <h2 style={sectionTitle}>Cast</h2>
                     <div className="movie-cast-scroll" style={{ display: 'flex', gap: 20, overflowX: 'auto', paddingBottom: 8, scrollbarWidth: 'none' }}>
                         {cast.map((c) => (
-                            <div key={c.credit_id} style={castCard}>
+                            <div
+                                key={c.credit_id}
+                                style={{ ...castCard, cursor: 'pointer', transition: 'transform 0.2s' }}
+                                onClick={() => navigate(`/actor/${c.id}`)}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.transform = 'translateY(-4px)';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.transform = 'translateY(0)';
+                                }}
+                            >
                                 {c.profile_path ? (
                                     <img
                                         src={`${IMG_BASE}/w185${c.profile_path}`}
@@ -548,7 +615,7 @@ export default function MoviePage() {
                                         👤
                                     </div>
                                 )}
-                                <p style={castName}>{c.name}</p>
+                                <p style={{ ...castName, color: '#FFB800', transition: 'opacity 0.2s' }}>{c.name}</p>
                                 <p style={castChar}>{c.character}</p>
                             </div>
                         ))}
