@@ -1,4 +1,4 @@
-const MOCK_BASE = 'https://69a4cd9e885dcb6bd6a6a284.mockapi.io/api/v1';
+const MOCK_BASE = import.meta.env.VITE_MOCK_BASE;
 
 async function request(path, options = {}) {
     const res = await fetch(`${MOCK_BASE}${path}`, {
