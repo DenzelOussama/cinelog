@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { getReviews, deleteReview, updateUser } from '../api/mockapi';
+import { getReviews, deleteReview, updateReview, updateUser } from '../api/mockapi';
 import { IMG_BASE } from '../api/tmdb';
 import StarRating from '../components/StarRating';
 import { useToast } from '../context/ToastContext';
@@ -253,6 +253,69 @@ const reviewDeleteBtn = {
     transition: 'all 0.2s',
 };
 
+const reviewEditBtn = {
+    background: 'none',
+    border: '1px solid rgba(255,184,0,0.3)',
+    color: '#FFB800',
+    cursor: 'pointer',
+    fontSize: 10,
+    fontFamily: "'Inter', sans-serif",
+    fontWeight: 700,
+    textTransform: 'uppercase',
+    letterSpacing: 2,
+    padding: '5px 14px',
+    borderRadius: 20,
+    transition: 'all 0.2s',
+};
+
+const editTextArea = {
+    width: '100%',
+    minHeight: 80,
+    padding: '10px 14px',
+    background: '#141414',
+    border: '1px solid #2a2a2a',
+    borderRadius: 8,
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: 400,
+    fontFamily: "'Inter', sans-serif",
+    resize: 'vertical',
+    outline: 'none',
+    boxSizing: 'border-box',
+    marginTop: 10,
+    transition: 'border-color 0.2s',
+};
+
+const editSaveBtn = {
+    padding: '6px 20px',
+    borderRadius: 20,
+    border: 'none',
+    background: '#FFB800',
+    color: '#050505',
+    fontFamily: "'Inter', sans-serif",
+    fontSize: 10,
+    fontWeight: 700,
+    textTransform: 'uppercase',
+    letterSpacing: 2,
+    cursor: 'pointer',
+    transition: 'opacity 0.2s',
+};
+
+const editCancelBtn = {
+    padding: '6px 20px',
+    borderRadius: 20,
+    border: 'none',
+    background: 'transparent',
+    color: '#666',
+    fontFamily: "'Inter', sans-serif",
+    fontSize: 10,
+    fontWeight: 700,
+    textTransform: 'uppercase',
+    letterSpacing: 2,
+    cursor: 'pointer',
+    transition: 'color 0.2s',
+};
+
 const reviewText = {
     color: '#999',
     fontSize: 14,
@@ -329,6 +392,12 @@ export default function ProfilePage() {
     const [reviews, setReviews] = useState([]);
     const [loadingReviews, setLoadingReviews] = useState(false);
 
+    /* ── Edit review state ── */
+    const [editingId, setEditingId] = useState(null);
+    const [editRating, setEditRating] = useState(0);
+    const [editText, setEditText] = useState('');
+    const [saving, setSaving] = useState(false);
+
     useEffect(() => {
         if (!user) return;
         setLoadingReviews(true);
@@ -362,6 +431,41 @@ export default function ProfilePage() {
         } catch (err) {
             console.error(err);
             toast('Failed to delete review', 'error');
+        }
+    }
+
+    function handleEditReview(review) {
+        setEditingId(review.id);
+        setEditRating(review.rating);
+        setEditText(review.text);
+    }
+
+    function handleCancelEdit() {
+        setEditingId(null);
+        setEditRating(0);
+        setEditText('');
+    }
+
+    async function handleSaveEdit(reviewId) {
+        if (!editRating || !editText.trim()) return;
+        setSaving(true);
+        try {
+            const updated = await updateReview(reviewId, {
+                rating: editRating,
+                text: editText.trim(),
+            });
+            setReviews((prev) =>
+                prev.map((r) => (r.id === reviewId ? { ...r, ...updated } : r))
+            );
+            setEditingId(null);
+            setEditRating(0);
+            setEditText('');
+            toast('Review updated', 'success');
+        } catch (err) {
+            console.error(err);
+            toast('Failed to update review', 'error');
+        } finally {
+            setSaving(false);
         }
     }
 
@@ -521,72 +625,133 @@ export default function ProfilePage() {
                 </div>
             );
         }
-        return sortedReviews.map((r) => (
-            <div
-                key={r.id}
-                className="profile-review-card"
-                style={reviewCard}
-                onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#2a2a2a')}
-                onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#1e1e1e')}
-            >
-                {r.posterPath ? (
-                    <img
-                        src={`${IMG_BASE}/w154${r.posterPath}`}
-                        alt={r.movieTitle}
-                        style={reviewPoster}
-                        onClick={() => navigate(`/movie/${r.movieId}`)}
-                        onMouseEnter={(e) => (e.target.style.transform = 'scale(1.05)')}
-                        onMouseLeave={(e) => (e.target.style.transform = 'scale(1)')}
-                    />
-                ) : (
-                    <div
-                        style={{
-                            ...reviewPoster,
-                            width: 80,
-                            height: 120,
-                            background: '#1e1e1e',
-                            borderRadius: 8,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: '#555',
-                            fontSize: 20,
-                        }}
-                        onClick={() => navigate(`/movie/${r.movieId}`)}
-                    >
-                        🎬
-                    </div>
-                )}
-                <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                        <span style={reviewMovieTitle}>{r.movieTitle}</span>
-                        <button
-                            style={reviewDeleteBtn}
-                            onClick={() => handleDeleteReview(r.id)}
-                            onMouseEnter={(e) => {
-                                e.target.style.background = 'rgba(232,84,84,0.1)';
-                                e.target.style.borderColor = '#e85454';
+        return sortedReviews.map((r) => {
+            const isEditing = editingId === r.id;
+            return (
+                <div
+                    key={r.id}
+                    className="profile-review-card"
+                    style={{
+                        ...reviewCard,
+                        borderColor: isEditing ? 'rgba(255,184,0,0.25)' : undefined,
+                    }}
+                    onMouseEnter={(e) => { if (!isEditing) e.currentTarget.style.borderColor = '#2a2a2a'; }}
+                    onMouseLeave={(e) => { if (!isEditing) e.currentTarget.style.borderColor = '#1e1e1e'; }}
+                >
+                    {r.posterPath ? (
+                        <img
+                            src={`${IMG_BASE}/w154${r.posterPath}`}
+                            alt={r.movieTitle}
+                            style={reviewPoster}
+                            onClick={() => navigate(`/movie/${r.movieId}`)}
+                            onMouseEnter={(e) => (e.target.style.transform = 'scale(1.05)')}
+                            onMouseLeave={(e) => (e.target.style.transform = 'scale(1)')}
+                        />
+                    ) : (
+                        <div
+                            style={{
+                                ...reviewPoster,
+                                width: 80,
+                                height: 120,
+                                background: '#1e1e1e',
+                                borderRadius: 8,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: '#555',
+                                fontSize: 20,
                             }}
-                            onMouseLeave={(e) => {
-                                e.target.style.background = 'none';
-                                e.target.style.borderColor = 'rgba(232,84,84,0.3)';
-                            }}
+                            onClick={() => navigate(`/movie/${r.movieId}`)}
                         >
-                            Delete
-                        </button>
+                            🎬
+                        </div>
+                    )}
+                    <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                            <span style={reviewMovieTitle}>{r.movieTitle}</span>
+                            <div style={{ display: 'flex', gap: 8 }}>
+                                {!isEditing && (
+                                    <button
+                                        style={reviewEditBtn}
+                                        onClick={() => handleEditReview(r)}
+                                        onMouseEnter={(e) => {
+                                            e.target.style.background = 'rgba(255,184,0,0.1)';
+                                            e.target.style.borderColor = '#FFB800';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.target.style.background = 'none';
+                                            e.target.style.borderColor = 'rgba(255,184,0,0.3)';
+                                        }}
+                                    >
+                                        Edit
+                                    </button>
+                                )}
+                                <button
+                                    style={reviewDeleteBtn}
+                                    onClick={() => handleDeleteReview(r.id)}
+                                    onMouseEnter={(e) => {
+                                        e.target.style.background = 'rgba(232,84,84,0.1)';
+                                        e.target.style.borderColor = '#e85454';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.target.style.background = 'none';
+                                        e.target.style.borderColor = 'rgba(232,84,84,0.3)';
+                                    }}
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+
+                        {isEditing ? (
+                            /* ── Inline edit form ── */
+                            <div>
+                                <StarRating value={editRating} onChange={setEditRating} size={18} />
+                                <textarea
+                                    style={editTextArea}
+                                    value={editText}
+                                    onChange={(e) => setEditText(e.target.value)}
+                                    onFocus={(e) => (e.target.style.borderColor = '#FFB800')}
+                                    onBlur={(e) => (e.target.style.borderColor = '#2a2a2a')}
+                                />
+                                <div style={{ display: 'flex', gap: 10, marginTop: 12 }}>
+                                    <button
+                                        style={{ ...editSaveBtn, opacity: saving ? 0.6 : 1 }}
+                                        onClick={() => handleSaveEdit(r.id)}
+                                        disabled={saving || !editRating || !editText.trim()}
+                                        onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.85')}
+                                        onMouseLeave={(e) => (e.currentTarget.style.opacity = saving ? '0.6' : '1')}
+                                    >
+                                        {saving ? 'Saving…' : 'Save'}
+                                    </button>
+                                    <button
+                                        style={editCancelBtn}
+                                        onClick={handleCancelEdit}
+                                        onMouseEnter={(e) => (e.currentTarget.style.color = '#FFB800')}
+                                        onMouseLeave={(e) => (e.currentTarget.style.color = '#666')}
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            /* ── Read-only view ── */
+                            <>
+                                <StarRating value={r.rating} readOnly size={16} />
+                                <p style={reviewText}>{r.text}</p>
+                                <span style={reviewDate}>
+                                    {new Date(r.createdAt).toLocaleDateString('en-US', {
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric',
+                                    })}
+                                </span>
+                            </>
+                        )}
                     </div>
-                    <StarRating value={r.rating} readOnly size={16} />
-                    <p style={reviewText}>{r.text}</p>
-                    <span style={reviewDate}>
-                        {new Date(r.createdAt).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                        })}
-                    </span>
                 </div>
-            </div>
-        ));
+            );
+        });
     }
 
     const tabs = [

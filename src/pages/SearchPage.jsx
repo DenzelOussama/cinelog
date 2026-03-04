@@ -3,6 +3,8 @@ import { useSearchParams } from 'react-router-dom';
 import { searchMovies, getDiscover, getPopular, getTrending, searchPerson, IMG_BASE } from '../api/tmdb';
 import MovieCard from '../components/MovieCard';
 
+const TMDB_BASE = 'https://api.themoviedb.org/3';
+
 /* ── Genre definitions ── */
 const GENRES = [
     { id: 28, label: 'Action' },
@@ -479,6 +481,12 @@ export default function SearchPage() {
                 params['vote_count.gte'] = 100;
             }
 
+            // Log the final URL for verification
+            const logUrl = new URL(`${TMDB_BASE}/discover/movie`);
+            logUrl.searchParams.set('api_key', '***');
+            Object.entries(params).forEach(([k, v]) => logUrl.searchParams.set(k, v));
+            console.log('[CineLog Search] GET (auto-restore)', logUrl.toString());
+
             setFilterLoading(true);
             setFiltersApplied(true);
             getDiscover(params)
@@ -489,7 +497,7 @@ export default function SearchPage() {
         // Text search auto-triggers via the existing query useEffect
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    /* ── Existing text search logic — untouched ── */
+    /* ── Text search logic — filters results client-side when genres are active ── */
     useEffect(() => {
         if (!query.trim()) {
             setResults([]);
@@ -497,15 +505,24 @@ export default function SearchPage() {
             return;
         }
         const timer = setTimeout(() => {
+            const url = `${TMDB_BASE}/search/movie?api_key=***&query=${encodeURIComponent(query)}&page=1`;
+            console.log('[CineLog Search] GET', url);
             searchMovies(query)
                 .then((data) => {
-                    setResults(data.results || []);
+                    let movies = data.results || [];
+                    // Client-side genre filtering when genres are selected
+                    if (selectedGenres.length > 0) {
+                        movies = movies.filter((m) =>
+                            m.genre_ids && selectedGenres.some((gid) => m.genre_ids.includes(gid))
+                        );
+                    }
+                    setResults(movies);
                     setSearched(true);
                 })
                 .catch(console.error);
         }, 400);
         return () => clearTimeout(timer);
-    }, [query]);
+    }, [query, selectedGenres]);
 
     /* ── Actor search (debounced) ── */
     useEffect(() => {
@@ -553,41 +570,72 @@ export default function SearchPage() {
 
     /* ── Apply filters ── */
     function handleApply() {
-        const params = { sort_by: sortBy };
-
-        if (selectedGenres.length > 0) {
-            params.with_genres = selectedGenres.join(',');
-        }
-        if (yearFrom) {
-            params['primary_release_date.gte'] = `${yearFrom}-01-01`;
-        }
-        if (yearTo) {
-            params['primary_release_date.lte'] = `${yearTo}-12-31`;
-        }
-        if (actorId) {
-            params.with_cast = actorId;
-        }
-
-        // If sorting by rating, add a vote count threshold
-        if (sortBy === 'vote_average.desc') {
-            params['vote_count.gte'] = 100;
-        }
-
         setFilterLoading(true);
         setFiltersApplied(true);
         setFilterOpen(false);
-        // Clear text search when applying filters
-        setQuery('');
-        setResults([]);
-        setSearched(false);
 
-        // Update URL with filter params
-        setSearchParams(buildParams({ query: '' }), { replace: true });
+        if (query.trim()) {
+            // Text query + filters: search by text, then filter client-side by genre
+            const searchUrl = `${TMDB_BASE}/search/movie?api_key=***&query=${encodeURIComponent(query)}&page=1`;
+            console.log('[CineLog Search] GET (text + filters)', searchUrl);
+            console.log('[CineLog Search] Client-side genre filter:', selectedGenres.join(','));
 
-        getDiscover(params)
-            .then((data) => setFilterResults(data.results || []))
-            .catch(console.error)
-            .finally(() => setFilterLoading(false));
+            setSearchParams(buildParams(), { replace: true });
+
+            searchMovies(query)
+                .then((data) => {
+                    let movies = data.results || [];
+                    if (selectedGenres.length > 0) {
+                        movies = movies.filter((m) =>
+                            m.genre_ids && selectedGenres.some((gid) => m.genre_ids.includes(gid))
+                        );
+                    }
+                    setResults(movies);
+                    setSearched(true);
+                    setFilterResults([]);
+                })
+                .catch(console.error)
+                .finally(() => setFilterLoading(false));
+        } else {
+            // No text query: use /discover/movie with all filter params
+            const params = { sort_by: sortBy };
+
+            if (selectedGenres.length > 0) {
+                params.with_genres = selectedGenres.join(',');
+            }
+            if (yearFrom) {
+                params['primary_release_date.gte'] = `${yearFrom}-01-01`;
+            }
+            if (yearTo) {
+                params['primary_release_date.lte'] = `${yearTo}-12-31`;
+            }
+            if (actorId) {
+                params.with_cast = actorId;
+            }
+            // Avoid obscure results with fake ratings
+            if (sortBy === 'vote_average.desc') {
+                params['vote_count.gte'] = 100;
+            }
+
+            // Log the final URL for verification
+            const logUrl = new URL(`${TMDB_BASE}/discover/movie`);
+            logUrl.searchParams.set('api_key', '***');
+            Object.entries(params).forEach(([k, v]) => logUrl.searchParams.set(k, v));
+            console.log('[CineLog Search] GET', logUrl.toString());
+
+            // Clear text search state
+            setQuery('');
+            setResults([]);
+            setSearched(false);
+
+            // Update URL with filter params
+            setSearchParams(buildParams({ query: '' }), { replace: true });
+
+            getDiscover(params)
+                .then((data) => setFilterResults(data.results || []))
+                .catch(console.error)
+                .finally(() => setFilterLoading(false));
+        }
     }
 
     /* ── Reset filters ── */

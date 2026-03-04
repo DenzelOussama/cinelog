@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getMovieDetails, getSimilarMovies, IMG_BASE } from '../api/tmdb';
 import MovieCard from '../components/MovieCard';
@@ -344,6 +344,16 @@ export default function MoviePage() {
 
     // similar movies
     const [similar, setSimilar] = useState([]);
+    const similarScrollRef = useRef(null);
+
+    function scrollSimilar(direction) {
+        if (!similarScrollRef.current) return;
+        const amount = similarScrollRef.current.offsetWidth * 0.7;
+        similarScrollRef.current.scrollBy({
+            left: direction === 'left' ? -amount : amount,
+            behavior: 'smooth',
+        });
+    }
 
     useEffect(() => {
         setLoading(true);
@@ -695,15 +705,29 @@ export default function MoviePage() {
             {/* ── Similar Movies ── */}
             {similar.length > 0 && (
                 <div className="movie-section" style={container}>
-                    <h2 style={sectionTitle}>Similar Movies</h2>
+                    <div className="category-header" style={{ padding: 0, marginBottom: 20 }}>
+                        <h2 style={sectionTitle}>Similar Movies</h2>
+                        <div className="category-arrows">
+                            <button
+                                className="category-arrow"
+                                onClick={() => scrollSimilar('left')}
+                                aria-label="Scroll left"
+                            >
+                                ‹
+                            </button>
+                            <button
+                                className="category-arrow"
+                                onClick={() => scrollSimilar('right')}
+                                aria-label="Scroll right"
+                            >
+                                ›
+                            </button>
+                        </div>
+                    </div>
                     <div
-                        style={{
-                            display: 'flex',
-                            gap: 16,
-                            overflowX: 'auto',
-                            paddingBottom: 8,
-                            scrollbarWidth: 'none',
-                        }}
+                        ref={similarScrollRef}
+                        className="category-scroll"
+                        style={{ padding: 0, paddingBottom: 8 }}
                     >
                         {similar.map((m) => (
                             <div key={m.id} style={{ flexShrink: 0, width: 160 }}>

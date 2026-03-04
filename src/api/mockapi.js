@@ -49,3 +49,10 @@ export function createReview(data) {
 export function deleteReview(id) {
     return request(`/reviews/${id}`, { method: 'DELETE' });
 }
+
+export function updateReview(id, data) {
+    return request(`/reviews/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+    });
+}
