@@ -46,3 +46,7 @@ export function getPersonDetails(id) {
 export function getPersonMovieCredits(id) {
     return request(`/person/${id}/movie_credits`);
 }
+
+export function searchPerson(query) {
+    return request('/search/person', { query });
+}
